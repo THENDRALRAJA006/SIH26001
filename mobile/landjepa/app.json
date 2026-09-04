@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "LAND-JEPA",
+    "slug": "landjepa",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0a0e1a",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0e1a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "in.zaix.landjepa",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "LAND-JEPA uses your location to auto-fill field report coordinates for NER zone monitoring.",
+        "NSCameraUsageDescription": "LAND-JEPA uses the camera to capture photo evidence for landslide field reports.",
+        "NSPhotoLibraryUsageDescription": "LAND-JEPA accesses your photo library to attach images to field reports."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0e1a"
+      },
+      "package": "in.zaix.landjepa",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-location",
+      "expo-image-picker"
+    ],
+    "extra": {
+      "disclaimer": "DEMO MODE — Not an operational emergency system. Team ZAIX SIH26001."
+    }
+  }
+}
