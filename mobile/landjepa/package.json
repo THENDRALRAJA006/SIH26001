@@ -6,7 +6,8 @@
     "start":   "expo start",
     "android": "expo start --android",
     "ios":     "expo start --ios",
-    "web":     "expo start --web"
+    "web":     "expo start --web",
+    "test":    "jest tests/ --config jest.config.json"
   },
   "dependencies": {
     "expo":                           "~57.0.20",
