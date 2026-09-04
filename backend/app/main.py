@@ -35,6 +35,11 @@ async def lifespan(app: FastAPI):
     if settings.ALERT_DEMO_ONLY:
         logger.info("ALERT_DEMO_ONLY=true — no real alerts will be sent.")
 
+    # Initialize ML pipeline (loads models in thread pool)
+    from app.services.risk_pipeline import get_risk_pipeline
+    pipeline = get_risk_pipeline()
+    await pipeline.initialize()
+
     yield  # Application runs here
 
     logger.info("LAND-JEPA shutting down.")
@@ -76,7 +81,8 @@ async def health() -> dict:
     }
 
 
-# ── API v1 routers (registered as implemented in later checkpoints) ───
-# from app.api.v1 import auth, zones, risk, rainfall, reports, ...
-# app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
-# ... (registered in Checkpoint 7)
+# ── API v1 routers ────────────────────────────────────────────────────
+from app.api.v1 import risk, alerts  # noqa: E402
+
+app.include_router(risk.router,   prefix="/api/v1/risk",   tags=["risk"])
+app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
