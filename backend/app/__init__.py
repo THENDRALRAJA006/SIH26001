@@ -1,0 +1,1 @@
+"""LAND-JEPA Backend package."""
