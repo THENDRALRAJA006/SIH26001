@@ -1,0 +1,40 @@
+# JEPA Downstream Fine-tuning Configuration
+# ──────────────────────────────────────────
+
+pretrained_checkpoint: ml/checkpoints/jepa_pretrained/best.pt
+
+encoder:
+  # Must match jepa_config encoder settings
+  hidden_dim: 64
+  num_blocks: 4
+  kernel_size: 3
+  dropout: 0.1
+  latent_dim: 128
+
+  # Fine-tuning mode:
+  # 'frozen'  — all encoder weights frozen, only risk head trained
+  # 'partial' — last `unfreeze_blocks` TCN blocks + head trained
+  # 'full'    — all weights fine-tuned with lr_encoder
+  mode: partial
+  unfreeze_blocks: 2        # number of TCN blocks to unfreeze (from end)
+
+risk_head:
+  input_dim: null           # auto-computed: latent_dim + n_static_features
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  output_horizons: [0, 24, 48]  # current, 24h, 48h risk
+
+training:
+  batch_size: 32
+  epochs: 50
+  lr_encoder: 0.0001        # lower LR for encoder (or 0 if frozen)
+  lr_head: 0.0005
+  weight_decay: 0.0001
+  optimizer: adam
+  early_stopping_patience: 10
+  seed: 42
+  threshold: 0.35
+
+output:
+  checkpoint_dir: ml/checkpoints/jepa_downstream

@@ -1,0 +1,75 @@
+# LAND-JEPA — Data Pipeline Configuration
+# ─────────────────────────────────────────
+
+# ── Time-series windows ───────────────────────────────────────────────
+window:
+  context_hours: 168        # 7 days × 24h
+  target_hours: 24          # Prediction horizon
+  sampling_interval: hourly
+
+# ── Feature groups ────────────────────────────────────────────────────
+features:
+  rainfall:
+    - acc_1h
+    - acc_3h
+    - acc_6h
+    - acc_12h
+    - acc_24h
+    - acc_48h
+    - acc_72h
+    - intensity_max_1h
+
+  weather:
+    - temperature_c
+    - humidity_pct
+    - wind_speed_ms
+    - wind_dir_deg
+
+  soil_moisture:
+    - sm_volumetric
+    - sm_anomaly_7d
+    - sm_anomaly_30d
+
+  terrain:           # static, does not vary in time
+    - elevation_m
+    - slope_deg
+    - aspect_deg
+    - curvature
+    - tpi
+    - twi
+
+  physics_proxy:     # computed by PhysicsStateEstimator
+    - swi            # Soil Wetness Index [0,1]
+    - pore_pressure_proxy
+
+  historical:        # static, per zone
+    - susceptibility_score
+    - event_count_5km_10yr
+
+  optional_insar:    # only if INSAR_ENABLED=true
+    - deformation_trend_mm_30d
+    - deformation_coherence
+
+# ── Label construction ────────────────────────────────────────────────
+labels:
+  event_window_hours: 24    # label=1 if event occurs within next N hours
+  date_precision_policy:
+    exact: include           # use with confidence
+    day: include_conservatively  # label full 24h window
+    month: exclude           # too imprecise for hourly labels
+    year: exclude
+    unknown: exclude
+  negative_buffer_hours: 72  # exclude 72h before known events from negatives
+
+# ── Train/Val/Test split ──────────────────────────────────────────────
+split:
+  method: temporal           # NEVER random across time
+  test_cutoff: "2022-01-01"  # Events after this date → test set
+  val_cutoff: "2021-01-01"   # Events between val_cutoff and test_cutoff → val
+  # Events before val_cutoff → train
+
+# ── Label efficiency experiment ───────────────────────────────────────
+label_efficiency:
+  fractions: [0.05, 0.10, 0.25, 0.50, 1.00]
+  seeds: [42, 123, 456, 789, 1337]
+  stratified: true           # preserve class imbalance ratio per fraction

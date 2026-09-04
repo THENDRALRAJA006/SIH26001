@@ -1,0 +1,98 @@
+version: "3.9"
+
+# LAND-JEPA — Docker Compose (Development / Demo)
+# ─────────────────────────────────────────────────────────────────────
+# Usage:
+#   docker compose up -d
+#   docker compose exec backend alembic upgrade head
+#   docker compose exec backend python scripts/seed_demo.py
+#
+# With worker:
+#   docker compose --profile worker up -d
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL + PostGIS ─────────────────────────────────────────
+  db:
+    image: postgis/postgis:15-3.4
+    container_name: landjepa_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-landjepa}
+      POSTGRES_USER: ${POSTGRES_USER:-landjepa_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/00_init.sql:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-landjepa_user} -d ${POSTGRES_DB:-landjepa}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── FastAPI Backend ──────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: landjepa_backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    volumes:
+      - ./data:/app/data
+      - ./ml/checkpoints:/app/ml/checkpoints
+      - ./ml/configs:/app/ml/configs
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ── React Frontend ───────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: landjepa_frontend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  # ── Background Worker (optional) ─────────────────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: landjepa_worker
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    volumes:
+      - ./data:/app/data
+      - ./ml/checkpoints:/app/ml/checkpoints
+      - ./ml/configs:/app/ml/configs
+    depends_on:
+      db:
+        condition: service_healthy
+    command: python -m app.worker
+    profiles:
+      - worker
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  default:
+    name: landjepa_network

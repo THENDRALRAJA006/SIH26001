@@ -1,0 +1,94 @@
+# LAND-JEPA — .gitignore
+
+# ── Environment & Secrets ────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ── Python ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node / Frontend ───────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/build/
+mobile/node_modules/
+.expo/
+.expo-shared/
+
+# ── ML Artifacts ─────────────────────────────────────────────────────
+ml/checkpoints/
+models/
+*.pt
+*.pkl
+*.joblib
+*.h5
+
+# ── Data ──────────────────────────────────────────────────────────────
+data/raw/
+data/interim/
+data/processed/
+data/uploads/
+# Keep: data/demo/ and data/.gitkeep files
+
+# ── Results (large files) ─────────────────────────────────────────────
+results/experiment_logs/
+results/*.png
+results/*.csv
+# Keep: results/FINAL_RESEARCH_REPORT.md
+
+# ── Database ──────────────────────────────────────────────────────────
+*.sql.gz
+pgdata/
+
+# ── Docker ────────────────────────────────────────────────────────────
+docker/volumes/
+
+# ── IDE / OS ─────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Jupyter ───────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# ── Logs ──────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Alembic ───────────────────────────────────────────────────────────
+# Keep migrations, exclude generated dumps

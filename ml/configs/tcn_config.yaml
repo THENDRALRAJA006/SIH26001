@@ -1,0 +1,30 @@
+# Supervised TCN Configuration
+# ─────────────────────────────
+
+model:
+  # Architecture
+  input_dim: null           # set automatically from data_config feature count
+  hidden_dim: 64            # TCN channel width
+  num_blocks: 4             # dilation: 1, 2, 4, 8 (2^0 ... 2^(num_blocks-1))
+  kernel_size: 3
+  dropout: 0.1
+  output_dim: 1             # binary classification
+
+  # Receptive field = (kernel_size - 1) * sum(dilations) + 1
+  # With num_blocks=4, kernel_size=3: RF = 2*(1+2+4+8)+1 = 31 steps
+
+training:
+  context_len: 168          # matches data_config.window.context_hours
+  batch_size: 64
+  epochs: 100
+  lr: 0.001
+  weight_decay: 0.0001
+  optimizer: adam
+  loss: bce_with_logits     # pos_weight computed from class imbalance
+  early_stopping_patience: 10
+  lr_scheduler: cosine      # CosineAnnealingLR
+  seed: 42
+  threshold: 0.35           # operating threshold (selected on validation)
+
+output:
+  checkpoint_dir: ml/checkpoints/tcn_supervised

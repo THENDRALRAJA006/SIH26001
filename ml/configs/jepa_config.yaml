@@ -1,0 +1,55 @@
+# JEPA Pre-training Configuration
+# ──────────────────────────────────
+
+encoder:
+  # Shared architecture with supervised TCN (must match tcn_config)
+  hidden_dim: 64
+  num_blocks: 4
+  kernel_size: 3
+  dropout: 0.1
+
+predictor:
+  # Lightweight MLP predicts target latent from context latent
+  hidden_dim: 256
+  num_layers: 3
+  dropout: 0.1
+
+latent:
+  dim: 128                  # embedding dimension (output of context encoder)
+
+target_encoder:
+  ema_decay: 0.999          # EMA decay rate for target encoder
+  # Target encoder is NEVER updated by gradient descent
+  # z_t is stop-gradient in loss computation
+
+windows:
+  context_len: 168          # past 7 days (hourly)
+  target_len: 24            # future 24h
+  # CRITICAL: target window must NOT overlap with context window
+
+loss:
+  type: smooth_l1           # SmoothL1 between predicted and target latent
+  # Loss is computed AFTER stop-gradient on z_t
+
+augmentation:
+  enabled: false            # Gaussian noise augmentation
+  noise_std: 0.01           # only on non-terrain features
+
+training:
+  batch_size: 128
+  epochs: 200
+  lr: 0.0003
+  warmup_epochs: 10
+  optimizer: adam
+  weight_decay: 0.0001
+  seed: 42
+
+collapse_detection:
+  enabled: true
+  check_interval_epochs: 5
+  collapse_variance_threshold: 0.01  # alert if variance of z_c < this
+
+output:
+  checkpoint_dir: ml/checkpoints/jepa_pretrained
+  save_every_n_epochs: 20
+  log_loss_every_n_steps: 100

@@ -1,0 +1,33 @@
+# Risk Threshold Configuration
+# ─────────────────────────────
+# These thresholds convert model risk_score [0,1] to risk_level labels.
+# They MUST be set by domain experts based on validated recall/precision tradeoff.
+# Changing thresholds does NOT require model retraining.
+
+thresholds:
+  low_medium: 0.30          # risk_score >= 0.30 → MEDIUM
+  medium_high: 0.60         # risk_score >= 0.60 → HIGH
+  # risk_score < 0.30       → LOW
+
+# Priority scoring weights
+priority_weights:
+  risk_score: 0.40
+  population_exposure: 0.25
+  road_criticality: 0.20
+  infrastructure_criticality: 0.10
+  accessibility: 0.05        # lower accessibility = higher urgency
+
+# Priority level thresholds (composite score [0,1])
+priority_thresholds:
+  p1_min: 0.75               # composite_score >= 0.75 → Priority 1
+  p2_min: 0.45               # composite_score >= 0.45 → Priority 2
+  # composite_score < 0.45  → Priority 3
+
+# Minimum confidence for alert generation
+min_confidence_for_alert: 0.50
+
+# Alert trigger conditions
+alert_triggers:
+  risk_level_high: true      # trigger when zone crosses HIGH threshold
+  priority_1: true           # trigger when zone becomes Priority 1
+  risk_increase_delta: 0.20  # trigger if risk increases by >0.20 in one cycle

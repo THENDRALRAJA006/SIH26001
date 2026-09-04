@@ -1,0 +1,33 @@
+# XGBoost Baseline Configuration
+# ────────────────────────────────
+
+model:
+  n_estimators: 500
+  max_depth: 6
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.8
+  min_child_weight: 5
+  gamma: 0.1
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  # scale_pos_weight: auto  # computed as n_neg/n_pos at training time
+  tree_method: hist
+  objective: binary:logistic
+  eval_metric: [aucpr, logloss]
+  early_stopping_rounds: 50
+  verbosity: 1
+  seed: 42
+
+training:
+  eval_fraction: 0.15        # fraction of train used for early stopping
+  cv_folds: 5                # TimeSeriesSplit folds for hyperparameter selection
+  threshold: 0.35            # operating threshold (selected on validation)
+  # threshold = selected to maximize recall with precision >= 0.30
+  # NEVER tuned on test set
+
+output:
+  checkpoint_dir: ml/checkpoints/xgboost
+  save_model: true
+  save_feature_importance: true
+  save_shap_plots: true

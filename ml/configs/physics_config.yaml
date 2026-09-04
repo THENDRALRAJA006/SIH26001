@@ -1,0 +1,43 @@
+# Physics-Aware State Estimator Configuration
+# ─────────────────────────────────────────────
+#
+# IMPORTANT: This is a simplified empirical model, NOT a geotechnical simulator.
+# All parameters are first-approximation values. Site-specific calibration required
+# for operational use.
+#
+# Assumptions documented:
+#  1. Uniform soil properties per zone (spatial heterogeneity ignored)
+#  2. No lateral subsurface flow
+#  3. No evapotranspiration modeling (conservative; overestimates wetness)
+#  4. No bedrock depth modeling
+
+infiltration:
+  # Simplified cumulative rainfall → soil wetness index (SWI)
+  model: exponential_decay    # SWI(t) = alpha*R(t) + (1-alpha)*SWI(t-1)
+  alpha: 0.10                 # rainfall weighting factor
+  # alpha is configurable: higher = more responsive to recent rainfall
+
+  # Maximum infiltration (saturation capacity proxy)
+  field_capacity: 0.40        # m³/m³, volumetric water content at field capacity
+  wilting_point: 0.12         # m³/m³
+
+soil_wetness_index:
+  # SWI normalized to [0, 1]
+  # 0 = dry (at wilting point), 1 = saturated (at or above field capacity)
+  clip_at_saturation: true
+
+pore_pressure_proxy:
+  # Simplified: pore_pressure_proxy = SWI * slope_factor
+  slope_factor_max: 1.5       # amplification for high-slope terrain (slope > 30°)
+  slope_threshold_deg: 30.0
+
+stability_indicator:
+  # Binary signal: 1 if SWI exceeds critical threshold
+  critical_swi_threshold: 0.75
+
+window:
+  # Lookback for infiltration computation
+  accumulation_hours: 72
+
+enabled: true                 # set to false to disable this module
+feature_name: swi             # name of the feature added to ML input
