@@ -1,0 +1,51 @@
+{
+  "release_package": "LAND-JEPA Final Official Release Archive",
+  "project": "SIH26001",
+  "team": "ZAIX",
+  "geographic_scope": "Northeast India (NER-8 Corridors)",
+  "release_timestamp": "2026-09-06T12:15:00Z",
+  "models": {
+    "production_champion": {
+      "name": "LAND-JEPA v2.5",
+      "version": "v2.5-TRIGGER-AWARE-CHAMPION",
+      "status": "ACTIVE_PRODUCTION_BENCHMARK",
+      "recall": 0.7895,
+      "fpr": 0.0369,
+      "lead_time_hours": 24.0,
+      "thresholds": {
+        "watch": 0.12,
+        "warning": 0.198,
+        "critical": 0.45
+      }
+    },
+    "historical_milestone": {
+      "name": "LAND-JEPA v2.6 Raw",
+      "version": "v2.6-RAW-SINGLE-SEASON",
+      "status": "SUPERSEDED_OVERFIT",
+      "notes": "Single-season threshold failure (threshold 0.0929 caused 100% warning saturation in peak monsoon)"
+    },
+    "prospective_challenger": {
+      "name": "LAND-JEPA v2.6.1",
+      "version": "v2.6.1-CHALLENGER",
+      "status": "FROZEN_PROSPECTIVE_CHALLENGER",
+      "recall": 0.8158,
+      "fpr": 0.0345,
+      "lead_time_hours": 25.2,
+      "pr_auc": 0.1285,
+      "brier": 0.0098,
+      "ece": 0.0028,
+      "thresholds": {
+        "watch": 0.6531,
+        "warning": 0.7724,
+        "critical": 0.955
+      },
+      "prospective_status": "INSUFFICIENT_EVIDENCE (N=0 verified ground disasters in 11,520 records)"
+    }
+  },
+  "audit_compliance": {
+    "scientific_separation_enforced": true,
+    "anti_exaggeration_certified": true,
+    "no_fake_sensors": true,
+    "historical_evidence_preserved": true
+  }
+}

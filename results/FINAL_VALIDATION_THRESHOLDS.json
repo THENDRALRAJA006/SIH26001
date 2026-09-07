@@ -1,0 +1,10 @@
+{
+  "WATCH_tier_fpr10": 0.0661,
+  "WARNING_tier_fpr5": 0.499,
+  "CRITICAL_tier_fpr1": 0.499,
+  "selection_protocol": "Strictly validation data (2015 hold-out)",
+  "watch_target_fpr": 0.1,
+  "warning_target_fpr": 0.05,
+  "critical_target_fpr": 0.01,
+  "timestamp": "2026-09-05T16:19:28.317502+00:00"
+}

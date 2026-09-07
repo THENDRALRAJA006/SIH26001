@@ -176,6 +176,7 @@ class WindowGenerator:
         self,
         df: pd.DataFrame,
         reference_time: datetime | None = None,
+        include_targets: bool = True,
     ) -> tuple[np.ndarray, np.ndarray, list[dict]]:
         """
         Generate window pairs as numpy arrays.
@@ -188,7 +189,8 @@ class WindowGenerator:
         contexts, targets, metadata = [], [], []
         for pair in self.generate(df, reference_time):
             contexts.append(pair.context_df.values.astype(np.float32))
-            targets.append(pair.target_df.values.astype(np.float32))
+            if include_targets:
+                targets.append(pair.target_df.values.astype(np.float32))
             metadata.append({
                 "zone_id": pair.zone_id,
                 "context_start": pair.context_start,
@@ -203,7 +205,7 @@ class WindowGenerator:
 
         return (
             np.stack(contexts, axis=0),
-            np.stack(targets, axis=0),
+            np.stack(targets, axis=0) if include_targets else np.empty((0, self.config.target_hours, 0), dtype=np.float32),
             metadata,
         )
 

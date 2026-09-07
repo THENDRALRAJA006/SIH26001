@@ -1,0 +1,65 @@
+{
+  "model_version": "v2.5-TRIGGER-AWARE-CHAMPION",
+  "dataset_version": "v2.5-NER-Expanded-177Events",
+  "feature_schema_count": 35,
+  "event_catalog": "results/MASTER_EVENT_CATALOG.csv (177 events)",
+  "test_event_count": 19,
+  "test_event_ids": [
+    "NASA-GLC-NER-2016-01",
+    "NASA-GLC-NER-2016-02",
+    "NASA-GLC-NER-2016-03",
+    "NASA-GLC-NER-2016-04",
+    "NASA-GLC-NER-2016-05",
+    "NASA-GLC-NER-2016-06",
+    "NASA-GLC-NER-2016-07",
+    "NASA-GLC-NER-2016-08",
+    "NASA-GLC-NER-2016-09",
+    "NASA-GLC-NER-2016-10",
+    "NASA-GLC-NER-2016-11",
+    "NASA-GLC-NER-2016-12",
+    "NASA-GLC-NER-2016-13",
+    "NASA-GLC-NER-2016-14",
+    "NASA-GLC-NER-2016-15",
+    "NASA-GLC-NER-2016-16",
+    "NASA-GLC-NER-2016-17",
+    "NASA-GLC-NER-2016-18",
+    "NASA-GLC-NER-2016-19"
+  ],
+  "baseline_metrics_24h_warning": {
+    "event_recall": 0.737,
+    "detected_events": "14/19",
+    "FNR": 0.333,
+    "FPR": 0.048,
+    "median_lead_time_h": 24.5,
+    "false_alarms_per_day": 0.0618,
+    "brier_score": 0.0076,
+    "ece": 0.0049,
+    "watch_recall_fpr10": 0.895,
+    "watch_detected_events": "17/19",
+    "warning_recall_fpr5": 0.737,
+    "critical_recall_fpr1": 0.526
+  },
+  "operating_parameters": {
+    "context_hours": 168,
+    "cluster_gap_hours": 24.0,
+    "calibration": "IsotonicRegression",
+    "threshold_selection": "Strictly Validation Constrained (FPR <= 5%)",
+    "horizons": [
+      6,
+      12,
+      24,
+      48,
+      72
+    ],
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1011
+    ],
+    "blind_test_set": "results/MASTER_TEST_EVENT_SET.csv (Strictly Immutable)"
+  },
+  "freeze_timestamp": "2026-09-05T17:19:09.985592+00:00",
+  "integrity_status": "LOCKED_IMMUTABLE"
+}

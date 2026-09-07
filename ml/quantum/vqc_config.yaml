@@ -1,0 +1,102 @@
+"""
+LAND-JEPA — VQC Configuration
+==============================
+SIH26001 / Team ZAIX
+
+EXPERIMENTAL RESEARCH BRANCH — NOT FOR PRODUCTION USE.
+"""
+
+# ── Data ──────────────────────────────────────────────────────────────────────
+data:
+  processed_dir: data/real/processed
+  checkpoint_dir: ml/checkpoints/land_jepa_production
+  artifacts_dir: ml/quantum/artifacts
+
+# ── Embedding extraction ──────────────────────────────────────────────────────
+embedding:
+  layer: z_fused           # 128-dimensional fused representation
+  insar_off: true          # InSAR OFF per provenance audit
+  batch_size: 256
+
+# ── Dimensionality reduction ──────────────────────────────────────────────────
+pca:
+  configs:
+    - n_components: 4      # Experiment A
+    - n_components: 8      # Experiment B
+  fit_on: train_only       # CRITICAL — no test-set statistics
+
+# ── Feature scaling ───────────────────────────────────────────────────────────
+scaler:
+  method: minmax           # Maps to [0, pi] for angle encoding
+  target_min: 0.0
+  target_max: 3.14159265   # pi
+
+# ── VQC circuit ───────────────────────────────────────────────────────────────
+circuit:
+  qubit_configs:
+    - n_qubits: 4
+    - n_qubits: 8
+  depth_configs:
+    - depth: 2
+    - depth: 4
+    - depth: 6
+  encoding: angle           # RY(feature_i) per qubit
+  trainable_gates: [RY, RZ]
+  entanglement: cnot_chain
+  measurement: PauliZ        # <Z_0> → sigmoid → probability
+  device: default.qubit      # PennyLane simulation only
+  shots: null                # Analytic (not shot-based)
+
+# ── Training ──────────────────────────────────────────────────────────────────
+training:
+  optimizer: adam
+  lr: 0.05
+  epochs: 100
+  patience: 20              # Early stopping
+  batch_size: 32
+  class_weight: balanced    # Handles landslide class imbalance
+  threshold_strategy: f1    # Threshold selected on val only
+  seeds: [42, 123, 456]
+
+# ── Label efficiency experiment ───────────────────────────────────────────────
+label_efficiency:
+  fractions: [0.01, 0.05, 0.10, 0.25, 0.50, 1.00]
+
+# ── Evaluation ────────────────────────────────────────────────────────────────
+evaluation:
+  n_bootstrap: 1000
+  bootstrap_seed: 42
+  threshold_sweep:
+    start: 0.05
+    stop: 0.95
+    step: 0.05
+  fpr_constraint: 0.05      # Operational: FPR <= 5%
+
+# ── Classical matched baselines ───────────────────────────────────────────────
+classical_baselines:
+  logistic_regression:
+    C: 1.0
+    max_iter: 500
+    solver: lbfgs
+    class_weight: balanced
+  mlp:
+    hidden_sizes: [32, 16]
+    activation: relu
+    dropout: 0.2
+    lr: 0.001
+    epochs: 200
+    batch_size: 32
+    class_weight: balanced
+
+# ── Output ─────────────────────────────────────────────────────────────────────
+output:
+  results_dir: results
+  artifacts_dir: ml/quantum/artifacts
+  comparison_csv: results/vqc_comparison.csv
+
+# ── Safety ────────────────────────────────────────────────────────────────────
+safety:
+  label: EXPERIMENTAL
+  disclaimer: "NOT USED FOR EMERGENCY ALERTS"
+  production_path: "LAND-JEPA classical risk head only"
+  quantum_hardware: false   # Simulator only — no real QPU dependency

@@ -1,0 +1,147 @@
+{
+  "benchmark_id": "V30-BENCHMARK-20260906T233621Z",
+  "corridor": "REAL-NER-001",
+  "corridor_name": "Guwahati Hills Corridor NH-27",
+  "coordinates": {
+    "lat": 26.1445,
+    "lon": 91.7362
+  },
+  "audit_timestamp": "2026-09-06T23:36:21.348943+00:00",
+  "trace_stages": {
+    "1_raw_inputs": {
+      "weather": {
+        "rain_current_mmh": 0.0,
+        "temp_c": 26.1,
+        "humidity_pct": 74.0,
+        "pressure_hpa": 1008.2,
+        "wind_kmh": 6.8,
+        "provider": "Open-Meteo LIVE"
+      },
+      "forecast_qpf": {
+        "qpf_6h_mm": 0.0,
+        "qpf_12h_mm": 0.0,
+        "qpf_24h_mm": 0.1,
+        "qpf_48h_mm": 0.4,
+        "qpf_72h_mm": 0.9,
+        "provider": "NOAA GFS Seamless"
+      },
+      "soil_hydrology": {
+        "soil_moisture_m3m3": 0.231,
+        "swi_index_5d": 0.312,
+        "pore_pressure_kpa": 0.85,
+        "provider": "ERA5-Land ECMWF"
+      },
+      "terrain_dem": {
+        "elevation_m": 158.0,
+        "slope_deg": 22.5,
+        "aspect_deg": 135.0,
+        "twi": 8.1,
+        "provider": "Copernicus GLO-30"
+      },
+      "road_infrastructure": {
+        "cut_angle_deg": 48.0,
+        "cut_height_m": 14.5,
+        "toe_disturbance_index": 0.442,
+        "provider": "ZAIX Physics Engine"
+      },
+      "drainage_culvert": {
+        "culvert_blockage_index": 0.361,
+        "drainage_density_km_km2": 2.45,
+        "provider": "MoRTH Culvert Inventory"
+      },
+      "tectonic_prior": {
+        "crustal_velocity_mm_yr": 38.2,
+        "azimuth_deg": 32.5,
+        "strain_rate_ns_yr": 32.0,
+        "provider": "GSI Seismotectonic Atlas / Jade et al. 2017"
+      },
+      "seismic_shaking": {
+        "pga_g": null,
+        "pga_status": "UNAVAILABLE",
+        "nearest_event": "EQ-NER-2026-09-04 M3.8 (91.7km away, 64h elapsed)",
+        "provider": "NCS / USGS"
+      },
+      "sentinel1_insar": {
+        "coherence": 0.12,
+        "los_velocity_mm_yr": null,
+        "status": "UNAVAILABLE",
+        "reason": "Vegetation decorrelation (gamma < 0.20)",
+        "provider": "ESA Copernicus SciHub"
+      }
+    },
+    "2_causality_verification": {
+      "t_obs_lte_T": true,
+      "t_qpf_lte_T": true,
+      "t_sat_lte_T": true,
+      "t_seismic_lte_T": true,
+      "t_tectonic_lte_T": true,
+      "ruling": "STRICT_CAUSALITY_VERIFIED_ZERO_LEAKAGE"
+    },
+    "3_model_tensors": {
+      "x_sequence_shape": [
+        1,
+        24,
+        16
+      ],
+      "x_terrain_shape": [
+        1,
+        8
+      ],
+      "x_trigger_shape": [
+        1,
+        47
+      ],
+      "x_tectonic_shape": [
+        1,
+        11
+      ],
+      "x_seismic_shape": [
+        1,
+        10
+      ],
+      "x_insar_shape": [
+        1,
+        10
+      ],
+      "total_continuous_features": 102
+    },
+    "4_gated_fusion_weights": {
+      "temporal_stream": 0.308,
+      "terrain_stream": 0.181,
+      "trigger_stream": 0.239,
+      "geological_stream": 0.272
+    },
+    "5_calibrated_multi_horizon_risk": {
+      "6h": {
+        "raw": 0.0215,
+        "calibrated": 0.021,
+        "tier": "MONITOR",
+        "confidence": 0.94
+      },
+      "12h": {
+        "raw": 0.0218,
+        "calibrated": 0.021,
+        "tier": "MONITOR",
+        "confidence": 0.92
+      },
+      "24h": {
+        "raw": 0.0224,
+        "calibrated": 0.021,
+        "tier": "MONITOR",
+        "confidence": 0.91
+      },
+      "48h": {
+        "raw": 0.0229,
+        "calibrated": 0.021,
+        "tier": "MONITOR",
+        "confidence": 0.88
+      },
+      "72h": {
+        "raw": 0.0246,
+        "calibrated": 0.0242,
+        "tier": "MONITOR",
+        "confidence": 0.85
+      }
+    }
+  }
+}

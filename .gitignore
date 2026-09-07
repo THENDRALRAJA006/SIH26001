@@ -48,7 +48,8 @@ mobile/node_modules/
 
 # ── ML Artifacts ─────────────────────────────────────────────────────
 ml/checkpoints/
-models/
+/models/
+!ml/models/
 *.pt
 *.pkl
 *.joblib
@@ -92,3 +93,7 @@ logs/
 
 # ── Alembic ───────────────────────────────────────────────────────────
 # Keep migrations, exclude generated dumps
+
+# ── Temporary Prompt Dumps ───────────────────────────────────────────
+prompt_dump*.txt
+

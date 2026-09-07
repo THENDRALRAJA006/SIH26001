@@ -49,6 +49,8 @@ class DatasetConfig:
     val_cutoff: str = "2021-01-01"
     label_efficiency_fraction: float = 1.0
     label_efficiency_seed: int = 42
+    include_terrain: bool = True
+    include_sequence: bool = True
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> "DatasetConfig":
@@ -62,6 +64,7 @@ class DatasetConfig:
             test_cutoff=split.get("test_cutoff", "2022-01-01"),
             val_cutoff=split.get("val_cutoff", "2021-01-01"),
             label_efficiency_fraction=le.get("fractions", [1.0])[-1],
+            include_terrain=cfg.get("features", {}).get("include_terrain", True),
         )
 
 
@@ -111,11 +114,13 @@ class DatasetBuilder:
 
     # Tabular features extracted from the LAST timestep of each context window
     # (representing "current state" for XGBoost)
+    # NOTE: sm_anomaly is intentionally omitted — it is not present in ERA5-Land
+    # real ingestion and would be silently zero-filled, creating a dead feature.
     SNAPSHOT_FEATURES = [
         "acc_1h", "acc_3h", "acc_6h", "acc_12h", "acc_24h", "acc_48h", "acc_72h",
         "intensity_max_1h", "dry_hours_streak", "monsoon_flag",
         "temperature_c", "humidity_pct", "wind_speed_ms",
-        "sm_volumetric", "sm_anomaly",
+        "sm_volumetric",
         "swi", "pore_pressure_proxy", "stability_indicator",
     ]
     # Static features (same for all windows of the same zone)
@@ -125,6 +130,128 @@ class DatasetBuilder:
 
     def __init__(self, config: DatasetConfig | None = None) -> None:
         self.config = config or DatasetConfig()
+        # ── Window cache (populated by build_with_cache) ──────────────────────
+        self._cached_contexts: np.ndarray | None = None
+        self._cached_labels_full: object = None  # LabelBuilder result at fraction=1.0
+        self._cached_meta: list | None = None
+        self._cached_terrain_lookup: dict | None = None
+        self._cached_ts_feature_cols: list | None = None
+        self._cached_feat_names: list | None = None
+        self._cached_X_tab: np.ndarray | None = None
+        self._cached_context_ends_ts: pd.DatetimeIndex | None = None
+
+    # ── Single pass: generate + cache windows ─────────────────────────────────
+    def warm_cache(self, merged_df: pd.DataFrame, terrain_df: pd.DataFrame, events_df: pd.DataFrame) -> None:
+        """Generate all windows ONCE and store in memory. Call this before the benchmark loop."""
+        from ml.features.window_generator import WindowConfig, WindowGenerator
+        from ml.features.label_builder import LabelBuilder, LabelConfig
+
+        cfg = self.config
+        win_cfg = WindowConfig(
+            context_hours=cfg.context_hours, target_hours=cfg.target_hours,
+            stride_hours=cfg.stride_hours, min_valid_fraction=cfg.min_valid_fraction,
+        )
+        gen = WindowGenerator(win_cfg)
+
+        self._cached_ts_feature_cols = [
+            c for c in merged_df.columns
+            if c not in ("zone_id", "observed_at", "data_source", "is_demo", "quality_flag")
+        ]
+
+        contexts_arr, _, meta = gen.generate_arrays(merged_df)
+        contexts_arr = contexts_arr.astype(np.float32)
+        logger.info(f"DatasetBuilder.warm_cache: {len(meta)} windows generated (cached)")
+
+        # Build labels at fraction=1.0 (full label set)
+        builder_lb = LabelBuilder(LabelConfig(event_window_hours=cfg.target_hours))
+        labels_full = builder_lb.build(meta, events_df)
+
+        # Build terrain lookup
+        terrain_lookup: dict[str, dict] = {}
+        for _, row in terrain_df.iterrows():
+            terrain_lookup[str(row["zone_id"])] = {
+                feat: row.get(feat, np.nan) for feat in self.STATIC_FEATURES
+            }
+
+        self._cached_contexts = contexts_arr
+        self._cached_meta = meta
+        self._cached_labels_full = (builder_lb, labels_full)
+        self._cached_terrain_lookup = terrain_lookup
+        feat_names = self.SNAPSHOT_FEATURES + (
+            self.STATIC_FEATURES if cfg.include_terrain else []
+        )
+        self._cached_feat_names = feat_names
+
+        # Precompute X_tab for all windows
+        static_feats = self.STATIC_FEATURES if cfg.include_terrain else []
+        X_tab_rows = []
+        for i, m in enumerate(meta):
+            ctx = contexts_arr[i]
+            snapshot = {
+                col: float(ctx[-1, j]) if j < ctx.shape[1] else np.nan
+                for j, col in enumerate(self._cached_ts_feature_cols)
+                if col in self.SNAPSHOT_FEATURES
+            }
+            for feat in self.SNAPSHOT_FEATURES:
+                if feat not in snapshot:
+                    snapshot[feat] = np.nan
+
+            if cfg.include_terrain:
+                terrain_row = terrain_lookup.get(m["zone_id"], {})
+                for feat in static_feats:
+                    snapshot[feat] = terrain_row.get(feat, np.nan)
+
+            x_tab = np.array([snapshot.get(f, np.nan) for f in feat_names], dtype=np.float32)
+            X_tab_rows.append(x_tab)
+
+        self._cached_X_tab = np.stack(X_tab_rows) if X_tab_rows else np.empty((0, len(feat_names)), dtype=np.float32)
+        self._cached_context_ends_ts = pd.to_datetime([m["context_end"] for m in meta], utc=True)
+
+    def build_cached(
+        self,
+        label_fraction: float = 1.0,
+        label_seed: int = 42,
+    ) -> tuple["SplitDataset", "SplitDataset", "SplitDataset"]:
+        """Fast build using cached windows. Call warm_cache() once first."""
+        if self._cached_contexts is None or self._cached_X_tab is None or self._cached_context_ends_ts is None:
+            raise RuntimeError("Call warm_cache() before build_cached()")
+
+        cfg = self.config
+        builder_lb, labels_base = self._cached_labels_full  # type: ignore
+        meta = self._cached_meta  # type: ignore
+        feat_names = self._cached_feat_names  # type: ignore
+        test_cutoff = pd.Timestamp(cfg.test_cutoff, tz="UTC")
+        val_cutoff  = pd.Timestamp(cfg.val_cutoff,  tz="UTC")
+
+        # Apply fraction subsampling (fast — just masks some positives)
+        labels_df = labels_base.copy()
+        if label_fraction < 1.0:
+            labels_df = builder_lb.apply_label_efficiency_fraction(
+                labels_df, fraction=label_fraction, seed=label_seed
+            )
+
+        labels_arr = labels_df["label"].to_numpy(dtype=np.int32)
+        valid_mask = labels_arr != -1
+
+        test_mask  = (self._cached_context_ends_ts >= test_cutoff) & valid_mask
+        val_mask   = (self._cached_context_ends_ts >= val_cutoff) & ~test_mask & valid_mask
+        train_mask = (self._cached_context_ends_ts < val_cutoff) & valid_mask
+
+        splits = {}
+        for name, mask in [("train", train_mask), ("val", val_mask), ("test", test_mask)]:
+            idx = np.where(mask)[0]
+            splits[name] = SplitDataset(
+                X_tabular=self._cached_X_tab[idx],
+                X_sequence=self._cached_contexts[idx],
+                y=labels_arr[idx],
+                feature_names=feat_names,
+                metadata=[meta[i] for i in idx],
+                split_name=name,
+                label_fraction=label_fraction if name == "train" else 1.0,
+            )
+            logger.debug(splits[name].describe())
+
+        return splits["train"], splits["val"], splits["test"]
 
     def build(
         self,
@@ -170,7 +297,7 @@ class DatasetBuilder:
             if c not in ("zone_id", "observed_at", "data_source", "is_demo", "quality_flag")
         ]
 
-        contexts_arr, _, meta = gen.generate_arrays(merged_df)
+        contexts_arr, _, meta = gen.generate_arrays(merged_df, include_targets=False)
         # contexts_arr: (N, T, F)
         logger.info(f"DatasetBuilder: generated {len(meta)} windows")
 
@@ -223,17 +350,20 @@ class DatasetBuilder:
                 if feat not in snapshot:
                     snapshot[feat] = np.nan
 
-            # Static terrain features for this zone
-            terrain_row = terrain_lookup.get(m["zone_id"], {})
-            for feat in self.STATIC_FEATURES:
-                snapshot[feat] = terrain_row.get(feat, np.nan)
+            # Static terrain features for this zone (only if enabled)
+            static_feats = self.STATIC_FEATURES if self.config.include_terrain else []
+            if self.config.include_terrain:
+                terrain_row = terrain_lookup.get(m["zone_id"], {})
+                for feat in static_feats:
+                    snapshot[feat] = terrain_row.get(feat, np.nan)
 
             # Build ordered feature vector
-            all_feat_names = self.SNAPSHOT_FEATURES + self.STATIC_FEATURES
+            all_feat_names = self.SNAPSHOT_FEATURES + static_feats
             x_tab = np.array([snapshot.get(f, np.nan) for f in all_feat_names], dtype=np.float32)
 
             X_tab_rows.append(x_tab)
-            X_seq_rows.append(ctx.astype(np.float32))
+            if self.config.include_sequence:
+                X_seq_rows.append(ctx.astype(np.float32))
             y_rows.append(label)
             meta_rows.append(m)
 
@@ -243,9 +373,9 @@ class DatasetBuilder:
             return empty, empty, empty
 
         X_tab = np.stack(X_tab_rows)   # (N, F_tab)
-        X_seq = np.stack(X_seq_rows)   # (N, T, F_seq)
+        X_seq = np.stack(X_seq_rows) if self.config.include_sequence else None   # (N, T, F_seq)
         y = np.array(y_rows, dtype=np.int32)
-        feat_names = self.SNAPSHOT_FEATURES + self.STATIC_FEATURES
+        feat_names = self.SNAPSHOT_FEATURES + (self.STATIC_FEATURES if self.config.include_terrain else [])
 
         # ── Temporal split ────────────────────────────────────────────
         # Never shuffle — split by context_end timestamp
@@ -262,7 +392,7 @@ class DatasetBuilder:
             idx = np.where(mask)[0]
             splits[name] = SplitDataset(
                 X_tabular=X_tab[idx],
-                X_sequence=X_seq[idx],
+                X_sequence=X_seq[idx] if X_seq is not None else np.empty((len(idx), 0, 0), dtype=np.float32),
                 y=y[idx],
                 feature_names=feat_names,
                 metadata=[meta_rows[i] for i in idx],

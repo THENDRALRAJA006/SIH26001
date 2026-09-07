@@ -1,0 +1,4 @@
+fold,season_year,windows,positives,v26_thresh_fpr10,v26_thresh_fpr5,v26_thresh_fpr1,v26_recall_warn,v26_fpr_warn,v26_fa_per_day
+Fold_A_2013,2013,2848,25,0.6531,0.7594,0.9377,0.08,0.0503,0.4024
+Fold_B_2014,2014,2898,8,0.651,0.7696,0.955,0.125,0.0502,0.4014
+Fold_C_2015,2015,2836,37,0.652,0.7724,0.9497,0.4324,0.05,0.4001

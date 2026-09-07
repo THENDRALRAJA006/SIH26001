@@ -1,0 +1,40 @@
+{
+  "model_name": "v2.4-ULTIMATE-SENSITIVITY-CHAMPION",
+  "freeze_timestamp": "2026-09-05T16:18:24.229530+00:00",
+  "baseline_metrics_24h": {
+    "event_recall": 0.684,
+    "detected_events": "13/19",
+    "FNR": 0.368,
+    "FPR": 0.0485,
+    "median_lead_time_h": 24.5,
+    "false_alarms_per_day": 0.0632,
+    "brier_score": 0.0078,
+    "ece": 0.0052,
+    "watch_recall_fpr10": 0.842,
+    "warning_recall_fpr5": 0.684,
+    "critical_recall_fpr1": 0.474
+  },
+  "operating_parameters": {
+    "context_hours": 168,
+    "cluster_gap_hours": 24.0,
+    "calibration": "IsotonicRegression",
+    "threshold_selection": "Validation-constrained (FA/day <= 0.0682, FPR <= 5%)",
+    "horizons": [
+      6,
+      12,
+      24,
+      48,
+      72
+    ],
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1011
+    ],
+    "blind_test_set": "results/MASTER_TEST_EVENT_SET.csv (19 events)"
+  },
+  "feature_count": 35,
+  "verification_status": "VERIFIED_REPRODUCIBLE"
+}

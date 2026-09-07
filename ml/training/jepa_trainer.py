@@ -148,13 +148,16 @@ class JEPATrainer:
         param_summary = self._model.count_parameters()
         logger.info(f"JEPAModel parameters: {param_summary}")
 
-        # ── EMA target encoder ─────────────────────────────────────────
+        # ── EMA target encoder & projection head ───────────────────────
         self._ema = EMAUpdater(
             context_encoder=self._model.context_encoder,
+            context_proj=self._model.context_proj,
             ema_decay=self.config.get("target_encoder", {}).get("ema_decay", 0.999),
         )
-        # Move target encoder to same device
+        # Move target encoder and projection head to same device
         self._ema.target_encoder = self._ema.target_encoder.to(self._device)
+        if self._ema.target_proj is not None:
+            self._ema.target_proj = self._ema.target_proj.to(self._device)
 
         # ── Optimiser ─────────────────────────────────────────────────
         lr = float(train_cfg.get("lr", 0.0003))
@@ -261,7 +264,8 @@ class JEPATrainer:
                 x_ctx = x_ctx.to(self._device)   # (B, T_ctx, F)
                 x_tgt = x_tgt.to(self._device)   # (B, T_tgt, F)
 
-                output = self._model(x_ctx, x_tgt, self._ema.target_encoder)
+                target_proj = self._ema.target_proj if self._ema is not None else None
+                output = self._model(x_ctx, x_tgt, self._ema.target_encoder, target_proj)
                 loss = output.loss
 
                 if not torch.isfinite(loss):
@@ -320,6 +324,9 @@ class JEPATrainer:
                    out / "predictor_weights.pt")
         torch.save(self._ema.target_encoder.state_dict(),
                    out / "target_encoder_weights.pt")
+        if self._ema.target_proj is not None:
+            torch.save(self._ema.target_proj.state_dict(),
+                       out / "target_proj_weights.pt")
 
         # Training curves
         with open(out / "training_curves.json", "w") as f:

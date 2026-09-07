@@ -1,0 +1,763 @@
+{
+  "overall_status": "DEGRADED",
+  "timestamp": "2026-09-07T17:04:54.935738+00:00",
+  "version": "0.1.0",
+  "total_diagnostic_latency_ms": 7559.56,
+  "uptime_seconds": 35446.1,
+  "critical_failures": [],
+  "degraded_components": [
+    "Database",
+    "MapTiler",
+    "Sentinel-1/InSAR",
+    "INSAR PROCESSING"
+  ],
+  "components_count": 41,
+  "components": [
+    {
+      "component": "Frontend",
+      "category": "Presentation & UI",
+      "status": "ONLINE",
+      "latency_ms": 0.49,
+      "version": "v3.2.0-PROD",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:04:54.936998+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "spa_framework": "React 18 + Vite 8",
+        "bundle_ready": true,
+        "routes_registered": 18,
+        "rain_canvas": "Active with pointer-events: none"
+      }
+    },
+    {
+      "component": "Backend API",
+      "category": "Core Gateway",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "0.1.0",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:04:54.936998+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "framework": "FastAPI (Async ASGI)",
+        "uptime_seconds": 35438.5,
+        "environment": "production",
+        "demo_mode": true
+      }
+    },
+    {
+      "component": "Database",
+      "category": "Persistence & Storage",
+      "status": "DEGRADED",
+      "latency_ms": 807.27,
+      "version": "PostgreSQL 15 / SQLite Fallback",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:04:55.744070+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "engine": "Local Ledger / Memory Store Fallback",
+        "note": "PostgreSQL port 5432 not listening; file/memory transactional fallback active",
+        "test_transaction": "Verified atomic file ledger commit"
+      }
+    },
+    {
+      "component": "Authentication",
+      "category": "Security & Identity",
+      "status": "ONLINE",
+      "latency_ms": 0.23,
+      "version": "JWT HS256",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:04:55.744070+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "jwt_algorithm": "HS256",
+        "token_generation": "Verified",
+        "token_validation": "Verified",
+        "officer_auth_alias": "/auth/officer/login active"
+      }
+    },
+    {
+      "component": "JWT/RBAC",
+      "category": "Security & Identity",
+      "status": "ONLINE",
+      "latency_ms": 0.12,
+      "version": "Role-Based Access v2.5",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:04:55.744070+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "citizen_to_citizen": "ALLOW (HTTP 200)",
+        "citizen_to_officer": "DENY (HTTP 401/403)",
+        "officer_to_officer": "ALLOW (HTTP 200)",
+        "unknown_to_protected": "DENY (HTTP 401)"
+      }
+    },
+    {
+      "component": "LAND-JEPA model",
+      "category": "AI Inference",
+      "status": "ONLINE",
+      "latency_ms": 22.23,
+      "version": "v2.5 Production",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:04:55.766736+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "model_hash": "1b877ff4a498caad",
+        "inference_latency_ms": 4.6,
+        "output_keys": [
+          "logits_0h",
+          "logits_24h",
+          "logits_48h",
+          "z_fused"
+        ],
+        "has_nan": false,
+        "has_inf": false,
+        "parameters": 180934
+      }
+    },
+    {
+      "component": "v2.5 production model",
+      "category": "AI Inference",
+      "status": "ONLINE",
+      "latency_ms": 0.25,
+      "version": "v2.5-TRIGGER-AWARE-CHAMPION",
+      "data_age": "Frozen Champion",
+      "last_success": "2026-09-07T17:04:55.767751+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "governance_role": "ACTIVE PRODUCTION BENCHMARK",
+        "weights_path": "ml\\checkpoints\\land_jepa_production\\land_jepa_weights.pt",
+        "recall_at_warning": 0.789,
+        "false_positive_rate": 0.0369,
+        "median_lead_time_h": 24.0
+      }
+    },
+    {
+      "component": "v2.6.1 challenger",
+      "category": "AI Inference",
+      "status": "ONLINE",
+      "latency_ms": 0.38,
+      "version": "v2.6.1-CHALLENGER",
+      "data_age": "Shadow Mode Quarantined",
+      "last_success": "2026-09-07T17:04:55.767751+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "governance_role": "FROZEN PROSPECTIVE CHALLENGER",
+        "shadow_mode": true,
+        "thresholds": {
+          "WATCH": 0.6531,
+          "WARNING": 0.7724,
+          "CRITICAL": 0.955
+        },
+        "feature_schema": "76 Geotechnical & Trigger Features",
+        "prospective_recall": "UNDEFINED (0 new verified events in window)",
+        "evidence_status": "INSUFFICIENT EVIDENCE"
+      }
+    },
+    {
+      "component": "Weather provider",
+      "category": "Atmospheric Telemetry",
+      "status": "ONLINE",
+      "latency_ms": 1132.22,
+      "version": "Open-Meteo API v1",
+      "data_age": "< 15 min",
+      "last_success": "2026-09-07T17:04:56.899757+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "temperature_c": 19.5,
+        "humidity_pct": 98,
+        "precipitation_mm": 0.0,
+        "wind_speed_kmh": 3.7,
+        "timestamp": "2026-09-07T17:00",
+        "provider": "Open-Meteo High-Resolution NWP (11km)"
+      }
+    },
+    {
+      "component": "Forecast provider",
+      "category": "Atmospheric Telemetry",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "72h Multi-Horizon QPF",
+      "data_age": "< 30 min",
+      "last_success": "2026-09-07T17:04:56.900756+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "horizons": [
+          "6h",
+          "12h",
+          "24h",
+          "48h",
+          "72h"
+        ],
+        "causality_verified": true,
+        "variables": [
+          "qpf_mm",
+          "soil_drainage_rate",
+          "wind_gust_kmh"
+        ]
+      }
+    },
+    {
+      "component": "Soil data",
+      "category": "Geotechnical Telemetry",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "ERA5-Land / Soil Moisture v2",
+      "data_age": "< 1 hour",
+      "last_success": "2026-09-07T17:04:56.900756+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "layers": [
+          "0-7cm volumetric",
+          "7-28cm root-zone",
+          "saturation_pct"
+        ],
+        "unit": "m3/m3 and %"
+      }
+    },
+    {
+      "component": "Terrain",
+      "category": "Spatial Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 0.16,
+      "version": "Copernicus GLO-30m DEM",
+      "data_age": "Static Baseline",
+      "last_success": "2026-09-07T17:04:56.901757+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "resolution": "30 meters",
+        "derivatives": [
+          "slope_degrees",
+          "aspect",
+          "curvature",
+          "twi",
+          "tpi"
+        ],
+        "coverage": "8 Northeast Strategic Corridors"
+      }
+    },
+    {
+      "component": "GIS",
+      "category": "Spatial Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 0.01,
+      "version": "GeoJSON EPSG:4326",
+      "data_age": "Continuous",
+      "last_success": "2026-09-07T17:04:56.901757+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "active_corridors": 8,
+        "projections": [
+          "EPSG:4326",
+          "EPSG:3857"
+        ],
+        "highway_corridors": [
+          "NH-27",
+          "NH-10",
+          "NH-102",
+          "NH-106",
+          "NH-29",
+          "NH-08",
+          "NH-208",
+          "NH-715"
+        ]
+      }
+    },
+    {
+      "component": "MapTiler",
+      "category": "Cartography & Basemaps",
+      "status": "DEGRADED",
+      "latency_ms": 0.01,
+      "version": "MapTiler Cloud Vector",
+      "data_age": "Live Vector Tiles",
+      "last_success": null,
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "configured": false,
+        "fallback": "CARTO Positron / Dark Matter basemaps active",
+        "secret_exposed": false
+      }
+    },
+    {
+      "component": "Sentinel-1/InSAR",
+      "category": "Satellite Geodesy",
+      "status": "UNAVAILABLE",
+      "latency_ms": 7.83,
+      "version": "Copernicus S1A C-Band SAR",
+      "data_age": "12-day orbital repeat",
+      "last_success": null,
+      "last_failure": "2026-09-07T17:04:56.909279+00:00",
+      "error_code": "DECORRELATED (coherence < 0.20)",
+      "details": {
+        "last_acquisition": "2026-08-30",
+        "processing_status": "UNAVAILABLE",
+        "quality_flag": "unprocessed_interferograms_vegetation_decorrelation",
+        "scientific_rule": "Zero synthetic deformation. InSAR gated OFF under decorrelation."
+      }
+    },
+    {
+      "component": "Seismic/PGA",
+      "category": "Geotechnical Telemetry",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "GSI Zone V / USGS Earthquake Catalog",
+      "data_age": "Static Hazard Prior + Real-time Stream",
+      "last_success": "2026-09-07T17:04:56.910283+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "regional_zone": "Zone V (Highest Indian Seismic Hazard)",
+        "peak_ground_acceleration_prior": 0.36,
+        "usgs_stream": "Connected with fallback to static GSI prior"
+      }
+    },
+    {
+      "component": "TECTONIC DATA",
+      "category": "Geological & Geodesy Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 0.04,
+      "version": "ITRF2014 / GSI Geodetic Prior",
+      "data_age": "Annual Prior (2026 Reference)",
+      "last_success": "2026-09-07T17:04:56.910283+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "velocity_mm_yr": 38.2,
+        "motion_azimuth": 32.5,
+        "strain_rate": 32.0,
+        "source": "GSI_SEISMOTECTONIC_ATLAS_NER_ITRF2014_GPS"
+      }
+    },
+    {
+      "component": "FAULT DATA",
+      "category": "Geological & Geodesy Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 0.01,
+      "version": "GSI Seismotectonic Atlas NER",
+      "data_age": "Static Geological Prior",
+      "last_success": "2026-09-07T17:04:56.910283+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "active_faults_count": 8,
+        "coverage": "8 Highway Corridors (Assam, Meghalaya, Manipur, Nagaland, Mizoram, Arunachal, Sikkim)"
+      }
+    },
+    {
+      "component": "SEISMIC DATA",
+      "category": "Geological & Geodesy Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 0.07,
+      "version": "NCS India / USGS Real-time Catalog",
+      "data_age": "77.1h since last event",
+      "last_success": "2026-09-07T17:04:56.910283+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "recent_30d_events": 1,
+        "max_magnitude": 3.8,
+        "pga_status": "UNAVAILABLE",
+        "coseismic_pore_pulse": 0.0
+      }
+    },
+    {
+      "component": "SENTINEL-1",
+      "category": "Geological & Geodesy Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 5570.43,
+      "version": "Copernicus Sentinel-1 C-SAR",
+      "data_age": "1 days ago",
+      "last_success": "2026-09-07T17:05:02.479506+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "product_count": 5,
+        "last_acquisition": "2026-09-06T11:56:19.157640Z",
+        "polarization": "VV+VH",
+        "mode": "PUBLIC_CATALOGUE_ONLY"
+      }
+    },
+    {
+      "component": "INSAR PROCESSING",
+      "category": "Geological & Geodesy Infrastructure",
+      "status": "DEGRADED",
+      "latency_ms": 0.34,
+      "version": "Two-Pass MCF InSAR Pipeline",
+      "data_age": "13.1 days",
+      "last_success": "2026-09-07T17:05:02.480977+00:00",
+      "last_failure": "2026-09-07T17:05:02.480977+00:00",
+      "error_code": "LOW_COHERENCE_MARGINAL",
+      "details": {
+        "coherence": 0.309,
+        "los_velocity": -18.75,
+        "trend": "SUBSIDING",
+        "coherence_rule": "Gated OFF when coherence < 0.20"
+      }
+    },
+    {
+      "component": "Road GIS",
+      "category": "Spatial Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "BRO / NHAI Highway Vectors",
+      "data_age": "Verified 2026",
+      "last_success": "2026-09-07T17:05:02.480977+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "corridor_buffers": "50m toe cut & 200m crest slope buffer",
+        "chainage_markers": "Verified across 8 corridors"
+      }
+    },
+    {
+      "component": "Drainage/Culvert",
+      "category": "Hydrological Infrastructure",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "HydroSHEDS / Culvert Crossings",
+      "data_age": "Verified 2026",
+      "last_success": "2026-09-07T17:05:02.480977+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "culvert_blockage_index": "Active physical gate in v2.6.1",
+        "drainage_density_km_km2": "1.8 - 3.4 across NER corridors"
+      }
+    },
+    {
+      "component": "Alert engine",
+      "category": "Civil Safety Dispatch",
+      "status": "ONLINE",
+      "latency_ms": 0.26,
+      "version": "NDMA 3-Tier Alert Engine",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.480977+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "test_transaction": "TEST_ALERT evaluated and rolled back safely",
+        "tiers": [
+          "WATCH (Yellow)",
+          "WARNING (Orange)",
+          "CRITICAL (Red)"
+        ],
+        "active_alert_zones": 4
+      }
+    },
+    {
+      "component": "Citizen reporting",
+      "category": "Civil Safety Dispatch",
+      "status": "ONLINE",
+      "latency_ms": 0.02,
+      "version": "Crowdsourced Incident Ingestion v2",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.480977+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "test_transaction": "TEST_CITIZEN_REPORT ingested and cleared",
+        "validation": "Spatial bounding + description length rules active"
+      }
+    },
+    {
+      "component": "Offline sync",
+      "category": "Data Reliability",
+      "status": "ONLINE",
+      "latency_ms": 0.37,
+      "version": "Append-Only Local Storage Sync",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.481592+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "offline_queue": "Client IndexedDB / localStorage fallback",
+        "ledger_writable": true
+      }
+    },
+    {
+      "component": "Notification service",
+      "category": "Civil Safety Dispatch",
+      "status": "ONLINE",
+      "latency_ms": 0.37,
+      "version": "Multi-Channel Broadcast Dispatch v3.0",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.482099+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "channels": [
+          "SMS (DLT)",
+          "Push (VAPID/FCM)",
+          "In-App"
+        ],
+        "delivery_success_rate": "20.0%",
+        "total_events": 90
+      }
+    },
+    {
+      "component": "SMS Provider",
+      "category": "Civil Safety Dispatch",
+      "status": "NOT_CONFIGURED",
+      "latency_ms": 0.01,
+      "version": "Provider: NONE (DLT Compliant)",
+      "data_age": "< 1s",
+      "last_success": null,
+      "last_failure": "2026-09-07T17:05:02.482099+00:00",
+      "error_code": "CREDENTIALS_MISSING",
+      "details": {
+        "provider": "none",
+        "sender_id": "LNDJPA",
+        "dlt_registered": true,
+        "test_mode": true
+      }
+    },
+    {
+      "component": "Push Provider",
+      "category": "Civil Safety Dispatch",
+      "status": "NOT_CONFIGURED",
+      "latency_ms": 0.01,
+      "version": "Protocol: WEBPUSH",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.482099+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "provider": "webpush",
+        "vapid_configured": false
+      }
+    },
+    {
+      "component": "Notification Queue",
+      "category": "Civil Safety Dispatch",
+      "status": "ONLINE",
+      "latency_ms": 0.01,
+      "version": "In-Memory + JSONL Append-Only Queue",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.482099+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "queue_depth": 0,
+        "total_processed": 90,
+        "max_retry_limit": 3
+      }
+    },
+    {
+      "component": "Webhook",
+      "category": "Civil Safety Dispatch",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "HMAC/Secret Verified Delivery Receipts",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.482099+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "endpoint": "/api/v1/notifications/webhook",
+        "secret_configured": true
+      }
+    },
+    {
+      "component": "Template Service",
+      "category": "Civil Safety Dispatch",
+      "status": "ONLINE",
+      "latency_ms": 0.01,
+      "version": "TRAI DLT Template Registry",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.482099+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "languages": [
+          "English",
+          "Hindi",
+          "Assamese",
+          "Bengali",
+          "Manipuri"
+        ],
+        "tiers": [
+          "WATCH",
+          "WARNING",
+          "CRITICAL"
+        ],
+        "dlt_compliant": true
+      }
+    },
+    {
+      "component": "Translation/i18n",
+      "category": "User Experience & Presentation",
+      "status": "ONLINE",
+      "latency_ms": 3.04,
+      "version": "i18n 5-Language Regional Matrix",
+      "data_age": "Static Parity",
+      "last_success": "2026-09-07T17:05:02.485291+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "languages": [
+          "English",
+          "Hindi",
+          "Assamese",
+          "Bengali",
+          "Manipuri"
+        ],
+        "total_keys": 19,
+        "missing_by_lang": {
+          "en": 0,
+          "hi": 0,
+          "as": 0,
+          "bn": 0,
+          "mni": 0
+        }
+      }
+    },
+    {
+      "component": "Prediction ledger",
+      "category": "Persistence & Storage",
+      "status": "ONLINE",
+      "latency_ms": 0.36,
+      "version": "Append-Only JSONL v2.5",
+      "data_age": "< 1 hour",
+      "last_success": "2026-09-07T17:05:02.485804+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "records_count": 64,
+        "file": "results/predictions_ledger.jsonl"
+      }
+    },
+    {
+      "component": "Audit log",
+      "category": "Persistence & Storage",
+      "status": "ONLINE",
+      "latency_ms": 0.23,
+      "version": "Immutable Audit Trail v3.2",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.485804+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "audited_elements": 68,
+        "file": "results/UI_INTERACTION_AUDIT.csv"
+      }
+    },
+    {
+      "component": "Scheduled jobs",
+      "category": "Core Gateway",
+      "status": "ONLINE",
+      "latency_ms": 0.0,
+      "version": "AsyncIO Cron Poller",
+      "data_age": "30s Cadence",
+      "last_success": "2026-09-07T17:05:02.485804+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "cadences": {
+          "critical_infrastructure": "every 5 min",
+          "external_telemetry": "every 10 min",
+          "shadow_validation": "every 30 min",
+          "daily_report": "once daily"
+        }
+      }
+    },
+    {
+      "component": "Cache",
+      "category": "Data Reliability",
+      "status": "ONLINE",
+      "latency_ms": 0.01,
+      "version": "In-Memory LRU Cache",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.485804+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "active_cached_entries": 0,
+        "ttl_seconds": 900
+      }
+    },
+    {
+      "component": "Storage",
+      "category": "Persistence & Storage",
+      "status": "ONLINE",
+      "latency_ms": 0.07,
+      "version": "Local NVMe / SSD Storage",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.485804+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "free_space_gb": 173.83,
+        "total_space_gb": 292.97
+      }
+    },
+    {
+      "component": "Docker services",
+      "category": "Container & Deployment",
+      "status": "ONLINE",
+      "latency_ms": 0.13,
+      "version": "Docker Compose v2",
+      "data_age": "Configured",
+      "last_success": "2026-09-07T17:05:02.485804+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "containers_defined": [
+          "backend",
+          "frontend",
+          "postgres",
+          "nginx"
+        ],
+        "healthchecks_configured": true
+      }
+    },
+    {
+      "component": "Reverse proxy",
+      "category": "Container & Deployment",
+      "status": "ONLINE",
+      "latency_ms": 0.12,
+      "version": "NGINX / Vite Gateway",
+      "data_age": "Configured",
+      "last_success": "2026-09-07T17:05:02.486333+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "rate_limiting": "60 req/min per IP",
+        "ssl_termination": "Production ready",
+        "cors_origins": "http://localhost:3000,http://localhost:5173"
+      }
+    },
+    {
+      "component": "Prediction pipeline",
+      "category": "AI Inference",
+      "status": "ONLINE",
+      "latency_ms": 9.6,
+      "version": "LAND-JEPA Multi-Horizon v2.5",
+      "data_age": "< 1s",
+      "last_success": "2026-09-07T17:05:02.486333+00:00",
+      "last_failure": null,
+      "error_code": null,
+      "details": {
+        "test_type": "SYSTEM HEALTH TEST",
+        "zone_id": "REAL-NER-001",
+        "risk_0h": 0.0025,
+        "risk_24h": 0.0025,
+        "causality_verified": true,
+        "model_version": "LAND-JEPA-v1.0.0"
+      }
+    }
+  ]
+}

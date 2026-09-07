@@ -10,6 +10,8 @@
  */
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
 import { RiskBadge } from "../components/UI";
+import { getMapTileLayer } from "./mapConfig";
+import { useTheme } from "../context/ThemeContext";
 
 // Demo zone coordinates in Northeast India
 const ZONE_COORDS = {
@@ -30,7 +32,9 @@ const RISK_COLOURS = {
 };
 
 export default function RiskMap({ zones = [], selectedZoneId, onZoneSelect }) {
+  const { isDark } = useTheme();
   const NER_CENTER = [25.5, 92.5];
+  const tile = getMapTileLayer(isDark ? "dark" : "light");
 
   return (
     <div id="risk-map-container" style={{
@@ -65,9 +69,9 @@ export default function RiskMap({ zones = [], selectedZoneId, onZoneSelect }) {
         id="leaflet-map"
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          maxZoom={19}
+          url={tile.url}
+          attribution={tile.attribution}
+          maxZoom={tile.maxZoom || 19}
         />
 
         {zones.map((zone) => {

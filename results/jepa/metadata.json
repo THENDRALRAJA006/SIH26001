@@ -1,0 +1,65 @@
+{
+  "model_name": "jepa_pretrained",
+  "saved_at": "2026-09-04T16:20:40.360471+00:00",
+  "git_commit": "e136623",
+  "best_val_loss": 0.03676682941162784,
+  "n_epochs_trained": 10,
+  "ema_decay": 0.999,
+  "config": {
+    "encoder": {
+      "hidden_dim": 64,
+      "num_blocks": 4,
+      "kernel_size": 3,
+      "dropout": 0.1
+    },
+    "predictor": {
+      "hidden_dim": 256,
+      "num_layers": 3,
+      "dropout": 0.1
+    },
+    "latent": {
+      "dim": 128
+    },
+    "target_encoder": {
+      "ema_decay": 0.999
+    },
+    "windows": {
+      "context_len": 168,
+      "target_len": 24
+    },
+    "loss": {
+      "type": "smooth_l1"
+    },
+    "augmentation": {
+      "enabled": false,
+      "noise_std": 0.01
+    },
+    "training": {
+      "batch_size": 128,
+      "epochs": 10,
+      "lr": 0.0003,
+      "warmup_epochs": 10,
+      "optimizer": "adam",
+      "weight_decay": 0.0001,
+      "seed": 42
+    },
+    "collapse_detection": {
+      "enabled": true,
+      "check_interval_epochs": 5,
+      "collapse_variance_threshold": 0.01
+    },
+    "output": {
+      "checkpoint_dir": "ml/checkpoints/jepa_pretrained",
+      "save_every_n_epochs": 20,
+      "log_loss_every_n_steps": 100
+    }
+  },
+  "parameter_counts": {
+    "context_encoder": 100544,
+    "context_proj": 25088,
+    "predictor": 132736,
+    "total_trainable": 258368
+  },
+  "collapse_detected": false,
+  "disclaimer": "JEPA pre-trained encoder for research evaluation. NOT deployed in operational pipeline without validated downstream performance."
+}

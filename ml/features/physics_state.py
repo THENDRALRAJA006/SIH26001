@@ -89,11 +89,20 @@ class PhysicsStateEstimator:
         Returns:
             DataFrame with [zone_id, observed_at, swi, pore_pressure_proxy, stability_indicator].
         """
-        if not self.config.enabled:
-            logger.info("PhysicsStateEstimator: disabled. Returning empty DataFrame.")
+        if not self.config.enabled or rainfall_df.empty:
+            if not self.config.enabled:
+                logger.info("PhysicsStateEstimator: disabled. Returning empty DataFrame.")
             return pd.DataFrame(
                 columns=["zone_id", "observed_at", "swi", "pore_pressure_proxy", "stability_indicator"]
             )
+
+        # Enforce canonical UTC-aware datetime representation
+        if rainfall_df["observed_at"].dt.tz is None:
+            rainfall_df = rainfall_df.copy()
+            rainfall_df["observed_at"] = rainfall_df["observed_at"].dt.tz_localize("UTC")
+        elif str(rainfall_df["observed_at"].dt.tz) != "UTC":
+            rainfall_df = rainfall_df.copy()
+            rainfall_df["observed_at"] = rainfall_df["observed_at"].dt.tz_convert("UTC")
 
         # Build slope lookup per zone
         slope_lookup: dict[str, float] = {}
@@ -116,7 +125,7 @@ class PhysicsStateEstimator:
 
             zone_result = pd.DataFrame({
                 "zone_id": str(zone_id),
-                "observed_at": zone_df["observed_at"].values,
+                "observed_at": zone_df["observed_at"].reset_index(drop=True),
                 "swi": swi_series,
                 "pore_pressure_proxy": pore_pressure,
                 "stability_indicator": stability,

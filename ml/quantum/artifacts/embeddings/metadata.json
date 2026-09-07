@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-09-05 02:53:57 UTC",
+  "checkpoint_dir": "D:\\SIH26001\\ml\\checkpoints\\land_jepa_production",
+  "embedding_dim": 128,
+  "n_samples": {
+    "train": 11440,
+    "val": 2842,
+    "test": 2261
+  },
+  "positives": {
+    "train": 76,
+    "val": 35,
+    "test": 18
+  },
+  "elapsed_seconds": 4.96
+}

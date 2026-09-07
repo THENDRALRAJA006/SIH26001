@@ -1,0 +1,270 @@
+{
+  "prediction_id": "PRED-20260906-1A0CE1",
+  "zone_id": "REAL-NER-001",
+  "prediction_time": "2026-09-06T23:27:11.490474+00:00",
+  "model_version": "vX-development-geological",
+  "feature_version": "v2.6.1-geological-x102",
+  "risk_6h": 0.4969,
+  "risk_12h": 0.4468,
+  "risk_24h": 0.4897,
+  "risk_48h": 0.479,
+  "risk_72h": 0.497,
+  "warning_level": "WATCH",
+  "confidence": 0.84,
+  "gating_weights": {
+    "temporal": 0.2835,
+    "terrain": 0.2943,
+    "trigger": 0.1884,
+    "geology": 0.2338
+  },
+  "data_sources": {
+    "weather": {
+      "source": "OPENMETEO_LIVE",
+      "quality": "nominal",
+      "age_minutes": 12.2
+    },
+    "forecast": {
+      "source": "OPENMETEO_GFS_SEAMLESS",
+      "spread_6h": 0.1
+    },
+    "insar": {
+      "available": true,
+      "coherence": 0.303,
+      "los_mm_yr": -8.88,
+      "status": "DEGRADED"
+    },
+    "seismic": {
+      "pga_g": null,
+      "pga_status": "UNAVAILABLE",
+      "gmpe": "Campbell2003_AtkinsonBoore"
+    },
+    "tectonic": {
+      "velocity_mm_yr": 38.2,
+      "azimuth_deg": 32.5,
+      "source": "GSI_SEISMOTECTONIC_ATLAS_NER_ITRF2014_GPS"
+    }
+  },
+  "data_provenance": {
+    "weather": {
+      "provider": "Open-Meteo REST API (api.open-meteo.com/v1/forecast)",
+      "dataset": "ECMWF IFS / DWD ICON Seamless Live Observations",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2026-09-06T23:15:00+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.0,
+      "unit": "mm/h",
+      "temperature_c": 26.1,
+      "soil_moisture_m3m3": 0.357,
+      "quality": "nominal",
+      "data_age_minutes": 12.2,
+      "availability_status": "REAL"
+    },
+    "forecast": {
+      "provider": "Open-Meteo / NOAA GFS Numerical Weather Prediction",
+      "dataset": "Seamless GFS / ECMWF Hourly Precipitation Forecast (0-72h)",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2026-09-06T23:15:00+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 9.8,
+      "unit": "mm (24h accumulated)",
+      "spread_6h": 0.1,
+      "quality": "nominal",
+      "data_age_minutes": 12.2,
+      "availability_status": "REAL"
+    },
+    "soil": {
+      "provider": "Open-Meteo (ERA5-Land 0-1cm Hydrology Proxy)",
+      "dataset": "soil_moisture_0_to_1cm",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2026-09-06T23:15:00+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.357,
+      "unit": "m3/m3",
+      "quality": "nominal",
+      "data_age_minutes": 12.2,
+      "availability_status": "REAL"
+    },
+    "terrain": {
+      "provider": "ESA / Copernicus Programme",
+      "dataset": "Copernicus 30m Global DEM (GLO-30)",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2021-04-01T00:00:00Z",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 22.5,
+      "unit": "degrees slope",
+      "elevation_m": 285.0,
+      "aspect_deg": 185.0,
+      "twi": 8.1,
+      "relief_m": 380.0,
+      "quality": "verified_copernicus_dem_30m",
+      "data_age_minutes": 0.0,
+      "availability_status": "STATIC PRIOR"
+    },
+    "road": {
+      "provider": "LAND-JEPA Geotechnical Physics Engine",
+      "dataset": "Corridor Cut-Slope Infrastructure Proxies (V26)",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2026-09-06T23:27:11.490474+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.442,
+      "unit": "proximity index [0, 1]",
+      "quality": "physics_derived_proxy",
+      "data_age_minutes": 0.0,
+      "availability_status": "PHYSICS PROXY"
+    },
+    "drainage": {
+      "provider": "LAND-JEPA Hydromorphology Engine",
+      "dataset": "Topographic Wetness & Culvert Choke Vulnerability (V26)",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2026-09-06T23:27:11.490474+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.361,
+      "unit": "drainage proximity index [0, 1]",
+      "quality": "physics_derived_proxy",
+      "data_age_minutes": 0.0,
+      "availability_status": "PHYSICS PROXY"
+    },
+    "tectonic": {
+      "provider": "Geological Survey of India (GSI) / Continuous GPS (ITRF2014)",
+      "dataset": "GSI_SEISMOTECTONIC_ATLAS_NER_ITRF2014_GPS",
+      "reference_frame": "ITRF2014",
+      "valid_date": "2010-01-01T00:00:00Z to 2030-12-31T23:59:59Z",
+      "spatial_source": "Corridor 10km buffer (26.175, 91.75)",
+      "processing_derivation_method": "Continuous GPS station velocity inversion relative to stable Indian Plate; Oldham / Brahmaputra active fault GIS buffer",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2026-09-06T23:27:11.490474+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 38.2,
+      "unit": "mm/year",
+      "azimuth_deg": 32.5,
+      "strain_rate_nstrain_yr": 32.0,
+      "nearest_major_fault": "Brahmaputra Boundary / Oldham Fault System",
+      "distance_to_fault_km": 22.0,
+      "quality": "verified_scientific_geodetic_prior",
+      "data_age_minutes": 0.0,
+      "availability_status": "STATIC TECTONIC PRIOR",
+      "label": "STATIC TECTONIC PRIOR"
+    },
+    "seismic": {
+      "provider": "National Center for Seismology (NCS) India / USGS ComCat",
+      "dataset": "NER Historical & Continuous Broadband Network Catalog",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2026-09-06T23:27:11.490474+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": null,
+      "unit": "fraction of g",
+      "pga_status": "UNAVAILABLE",
+      "why_unavailable": "NO_EARTHQUAKE_WITHIN_24H_ATTENUATION_WINDOW",
+      "nearest_event_id": "EQ-NER-2026-09-04",
+      "nearest_event_time": "2026-09-04T12:00:00+00:00",
+      "nearest_event_magnitude": 3.8,
+      "nearest_event_distance_km": 91.7,
+      "ground_motion_source_model": "Campbell-Bozorgnia (2014) / Atkinson-Boore (2003) GMPE",
+      "quality": "catalog_complete_zone_v",
+      "data_age_minutes": 0.0,
+      "availability_status": "UNAVAILABLE"
+    },
+    "sentinel1": {
+      "provider": "European Space Agency (ESA) Copernicus / Alaska Satellite Facility (ASF) DAAC",
+      "dataset": "Sentinel-1 C-SAR Interferometric Wide (IW) Level-1 Single Look Complex (SLC)",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2016-10-09T11:56:45Z",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "product_id": "S1A_IW_SLC__1SSV_20161009T115645_20161009T115713_013413_0156A2_F9CC",
+      "track": 41,
+      "flight_direction": "ASCENDING",
+      "footprint": "POLYGON ((90.432014 27.160503, 90.797478 25.476746, 93.274811 25.890694, 92.947693 27.571493, 90.432014 27.160503))",
+      "size_mb": 2512.7,
+      "quality": "esa_standard_slc_verified",
+      "availability_status": "AUTHENTIC CATALOGED SCENE"
+    },
+    "insar": {
+      "provider": "Sentinel-1 C-SAR Phase Interferometry",
+      "dataset": "real_ner_insar (Sentinel-1 InSAR Deformation Stream)",
+      "request_time": "2026-09-06T23:27:11.490474+00:00",
+      "data_timestamp": "2016-10-09T11:56:45Z",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": null,
+      "unit": "mm/year",
+      "coherence": null,
+      "available": false,
+      "status": "UNAVAILABLE",
+      "reason": "Phase unwrapping unavailable; broadleaf rainforest temporal decorrelation (coherence < 0.20); zero synthetic substitution",
+      "quality": "DECORRELATED_VEGETATION_UNPROCESSED",
+      "data_age_minutes": 0.0,
+      "availability_status": "UNAVAILABLE"
+    }
+  },
+  "model_provenance": {
+    "model_name": "LandJEPAvXGeologicalModel",
+    "model_version": "vX-development-geological",
+    "candidate_tag": "vX-development-geological",
+    "is_physics_fallback": false,
+    "status_label": "AI CANDIDATE MODEL ACTIVE",
+    "weights_status": "untrained_dev_candidate",
+    "gating_weights": {
+      "temporal": 0.2835,
+      "terrain": 0.2943,
+      "trigger": 0.1884,
+      "geology": 0.2338
+    }
+  },
+  "prediction_provenance": {
+    "prediction_id": "PRED-20260906-1A0CE1",
+    "zone_id": "REAL-NER-001",
+    "prediction_time": "2026-09-06T23:27:11.490474+00:00",
+    "feature_version": "v2.6.1-geological-x102",
+    "persisted": true,
+    "ledger_path": "results/predictions_ledger.jsonl",
+    "causality_checks": {
+      "observation_time_le_prediction_time": {
+        "passed": true,
+        "observation_time": "2026-09-06T23:15:00+00:00",
+        "prediction_time": "2026-09-06T23:27:11.490474+00:00",
+        "status": "PASS"
+      },
+      "forecast_issued_at_le_prediction_time": {
+        "passed": true,
+        "forecast_issued_at": "2026-09-06T23:15:00+00:00",
+        "prediction_time": "2026-09-06T23:27:11.490474+00:00",
+        "status": "PASS"
+      },
+      "satellite_acquisition_time_le_prediction_time": {
+        "passed": true,
+        "satellite_acquisition_time": "2016-10-09T11:56:45+00:00",
+        "prediction_time": "2026-09-06T23:27:11.490474+00:00",
+        "status": "PASS"
+      },
+      "seismic_event_time_le_prediction_time": {
+        "passed": true,
+        "seismic_event_time": "2026-09-04T12:00:00+00:00",
+        "prediction_time": "2026-09-06T23:27:11.490474+00:00",
+        "status": "PASS"
+      },
+      "tectonic_valid_time_le_prediction_time": {
+        "passed": true,
+        "tectonic_valid_from": "2010-01-01T00:00:00+00:00",
+        "prediction_time": "2026-09-06T23:27:11.490474+00:00",
+        "status": "PASS"
+      }
+    },
+    "all_causality_passed": true
+  },
+  "physics_state": {
+    "soil_water_index": 0.207,
+    "pore_pressure_kPa": 1.072,
+    "factor_of_safety": 2.695,
+    "is_critical": false,
+    "slope_deg": 22.5
+  }
+}

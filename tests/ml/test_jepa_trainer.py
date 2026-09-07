@@ -110,6 +110,15 @@ class TestJEPATrainerSmoke:
             "EMA should have created a smoothed version."
         )
 
+        # target_proj must also differ from context_proj
+        ctx_proj_params = list(trainer._model.context_proj.parameters())
+        tgt_proj_params = list(trainer._ema.target_proj.parameters())
+        any_proj_diff = any(
+            not torch.allclose(cp, tp)
+            for cp, tp in zip(ctx_proj_params, tgt_proj_params)
+        )
+        assert any_proj_diff, "Context and target proj should differ after EMA updates."
+
     def test_save_creates_artifacts(self, tiny_jepa_config, tiny_jepa_loaders, tmp_path):
         from ml.training.jepa_trainer import JEPATrainer
         train_loader, val_loader, F = tiny_jepa_loaders
@@ -122,6 +131,7 @@ class TestJEPATrainerSmoke:
             "context_proj_weights.pt",
             "predictor_weights.pt",
             "target_encoder_weights.pt",
+            "target_proj_weights.pt",
             "metadata.json",
             "training_curves.json",
         ]

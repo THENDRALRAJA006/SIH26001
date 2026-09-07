@@ -91,23 +91,25 @@ def _safe_deepcopy(module: nn.Module) -> nn.Module:
 
 class EMAUpdater:
     """
-    Maintains a target encoder as an EMA copy of a context encoder.
+    Maintains a target encoder and target projection head as EMA copies.
 
     Usage:
         # Initialize: copy context → target (exact copy at start)
-        ema = EMAUpdater(context_encoder, ema_decay=0.999)
+        ema = EMAUpdater(context_encoder, context_proj, ema_decay=0.999)
 
-        # After each optimizer step on context_encoder:
+        # After each optimizer step on context_encoder / context_proj:
         ema.update()
 
         # Forward pass on target (always no_grad):
         with torch.no_grad():
-            z_t = ema.target_encoder(x_target)
+            h_t = ema.target_encoder.encode(x_target)
+            z_t = ema.target_proj(h_t)
     """
 
     def __init__(
         self,
         context_encoder: nn.Module,
+        context_proj: nn.Module | None = None,
         ema_decay: float = 0.999,
     ) -> None:
         if not 0.0 < ema_decay < 1.0:
@@ -115,6 +117,7 @@ class EMAUpdater:
 
         self.ema_decay = ema_decay
         self._context_encoder = context_encoder
+        self._context_proj = context_proj
 
         # Create target encoder as a safe deep copy
         self.target_encoder: nn.Module = _safe_deepcopy(context_encoder)
@@ -123,19 +126,26 @@ class EMAUpdater:
         for param in self.target_encoder.parameters():
             param.requires_grad = False
 
+        # Create target projection head as a safe deep copy (if provided)
+        self.target_proj: nn.Module | None = None
+        if context_proj is not None:
+            self.target_proj = _safe_deepcopy(context_proj)
+            for param in self.target_proj.parameters():
+                param.requires_grad = False
+
         self._n_updates: int = 0
         logger.info(
-            f"EMAUpdater: target encoder created "
+            f"EMAUpdater: target encoder (and target_proj={'yes' if self.target_proj is not None else 'no'}) created "
             f"(ema_decay={ema_decay}, frozen=True)"
         )
 
     @torch.no_grad()
     def update(self) -> None:
         """
-        Update target encoder parameters via EMA of context encoder.
+        Update target encoder and target projection head parameters via EMA.
 
-        This is the ONLY way the target encoder is updated.
-        Called once after each optimizer step on the context encoder.
+        This is the ONLY way target parameters are updated.
+        Called once after each optimizer step on context modules.
         """
         tau = self.ema_decay
         for ctx_param, tgt_param in zip(
@@ -143,6 +153,13 @@ class EMAUpdater:
             self.target_encoder.parameters(),
         ):
             tgt_param.data.mul_(tau).add_(ctx_param.data, alpha=1.0 - tau)
+
+        if self.target_proj is not None and self._context_proj is not None:
+            for ctx_param, tgt_param in zip(
+                self._context_proj.parameters(),
+                self.target_proj.parameters(),
+            ):
+                tgt_param.data.mul_(tau).add_(ctx_param.data, alpha=1.0 - tau)
 
         self._n_updates += 1
 
@@ -161,24 +178,38 @@ class EMAUpdater:
                 self.target_encoder.parameters(),
             ):
                 tgt_p.data.mul_(tau).add_(ctx_p.data, alpha=1.0 - tau)
+
+            if self.target_proj is not None and self._context_proj is not None:
+                for ctx_p, tgt_p in zip(
+                    self._context_proj.parameters(),
+                    self.target_proj.parameters(),
+                ):
+                    tgt_p.data.mul_(tau).add_(ctx_p.data, alpha=1.0 - tau)
         self._n_updates += 1
 
     def reset_target_to_context(self) -> None:
-        """Hard-reset target encoder to current context encoder weights."""
+        """Hard-reset target encoder and projection head to context weights."""
         with torch.no_grad():
             for ctx_p, tgt_p in zip(
                 self._context_encoder.parameters(),
                 self.target_encoder.parameters(),
             ):
                 tgt_p.data.copy_(ctx_p.data)
-        logger.info("EMAUpdater: target encoder hard-reset to context encoder weights")
+
+            if self.target_proj is not None and self._context_proj is not None:
+                for ctx_p, tgt_p in zip(
+                    self._context_proj.parameters(),
+                    self.target_proj.parameters(),
+                ):
+                    tgt_p.data.copy_(ctx_p.data)
+        logger.info("EMAUpdater: target modules hard-reset to context weights")
 
     @property
     def n_updates(self) -> int:
         return self._n_updates
 
     def verify_target_frozen(self) -> bool:
-        """Assert no target parameter has requires_grad=True."""
+        """Assert no target parameter (encoder or projection head) has requires_grad=True."""
         for param in self.target_encoder.parameters():
             if param.requires_grad:
                 logger.error(
@@ -187,4 +218,13 @@ class EMAUpdater:
                     "receive gradient updates."
                 )
                 return False
+        if self.target_proj is not None:
+            for param in self.target_proj.parameters():
+                if param.requires_grad:
+                    logger.error(
+                        "EMAUpdater: target projection head parameter has requires_grad=True! "
+                        "This should never happen — the target projection head must never "
+                        "receive gradient updates."
+                    )
+                    return False
         return True

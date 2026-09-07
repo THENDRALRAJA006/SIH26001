@@ -77,6 +77,12 @@ class Settings(BaseSettings):
     TERRAIN_PROVIDER: str = "demo"
     INSAR_ENABLED: bool = False
 
+    # ── External API Keys ─────────────────────────────────────────────
+    OPEN_METEO_API_KEY: str = ""
+    USGS_API_KEY: str = ""
+    NASA_EARTHDATA_TOKEN: str = ""
+    MAPTILER_API_KEY: str = ""
+
     # ── Scheduling ────────────────────────────────────────────────────
     RAINFALL_REFRESH_INTERVAL_MINUTES: int = 60
     WEATHER_REFRESH_INTERVAL_MINUTES: int = 60
@@ -87,6 +93,23 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "data/uploads"
     MAX_PHOTO_SIZE_MB: int = 10
     MAX_VIDEO_SIZE_MB: int = 50
+
+    # ── Notifications & SMS / Push Early Warning System ───────────────
+    SMS_PROVIDER: str = ""  # 'twilio' | 'msg91' | 'aws_sns' | 'fast2sms' | 'mock'
+    SMS_API_KEY: str = ""
+    SMS_API_SECRET: str = ""
+    SMS_SENDER_ID: str = "LNDJPA"  # TRAI DLT 6-char Alpha Sender ID
+    SMS_TEMPLATE_ID: str = ""       # TRAI DLT Registered Template ID
+    PUSH_PROVIDER: str = "webpush"  # 'webpush' | 'fcm' | 'mock'
+    PUSH_VAPID_PUBLIC_KEY: str = ""
+    PUSH_VAPID_PRIVATE_KEY: str = ""
+    PUSH_VAPID_SUBJECT: str = "mailto:ops@landjepa.gov.in"
+    FCM_SERVER_KEY: str = ""
+    NOTIFICATION_TEST_MODE: bool = True
+    NOTIFICATION_TEST_PHONE: str = "+919876543210"
+    NOTIFICATION_WEBHOOK_SECRET: str = "landjepa-webhook-secret-2026"
+    NOTIFICATION_MAX_RETRIES: int = 3
+    NOTIFICATION_RATE_LIMIT_PER_MINUTE: int = 30
 
     @field_validator("ML_DEVICE")
     @classmethod

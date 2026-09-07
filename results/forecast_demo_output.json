@@ -1,0 +1,16 @@
+{
+  "alert_id": "ALERT-NER-202609051219",
+  "timestamp_issued_utc": "2026-09-05T12:19:56.079461+00:00",
+  "disaster_type": "RAINFALL_TRIGGERED_LANDSLIDE",
+  "system_version": "LAND-JEPA v2.0 Forecast-Aware (SIH26001 - Team ZAIX)",
+  "decision_boundary": "Validation FPR <= 5% (Threshold = 0.450)",
+  "high_priority_action_required": false,
+  "active_warnings_count": 0,
+  "target_agencies": [
+    "National Disaster Management Authority (NDMA)",
+    "State Disaster Management Authority (SDMA - Assam / Sikkim / Meghalaya)",
+    "Border Roads Organisation (BRO Project Swastik / Pushpak)",
+    "North Eastern Space Applications Centre (NESAC)"
+  ],
+  "corridor_action_matrix": []
+}

@@ -129,13 +129,25 @@ class TestJEPAModel:
     def test_target_encoder_no_grad_after_backward(self, tiny_model, ctx_batch, tgt_batch):
         """Target encoder params must have NO gradient after backward."""
         tiny_model.train()
-        ema = EMAUpdater(tiny_model.context_encoder, ema_decay=0.9)
-        output = tiny_model(ctx_batch, tgt_batch, ema.target_encoder)
+        ema = EMAUpdater(tiny_model.context_encoder, context_proj=tiny_model.context_proj, ema_decay=0.9)
+        output = tiny_model(ctx_batch, tgt_batch, ema.target_encoder, ema.target_proj)
         output.loss.backward()
         for name, param in ema.target_encoder.named_parameters():
             assert param.grad is None, (
                 f"Target encoder.{name} has grad — should be frozen!"
             )
+        for name, param in ema.target_proj.named_parameters():
+            assert param.grad is None, (
+                f"Target proj.{name} has grad — should be frozen!"
+            )
+
+    def test_target_proj_stop_gradient_and_frozen(self, tiny_model, ctx_batch, tgt_batch):
+        """Target proj output and params must be strictly detached and frozen."""
+        ema = EMAUpdater(tiny_model.context_encoder, context_proj=tiny_model.context_proj, ema_decay=0.9)
+        for p in ema.target_proj.parameters():
+            assert not p.requires_grad, "target_proj parameter has requires_grad=True!"
+        output = tiny_model(ctx_batch, tgt_batch, ema.target_encoder, ema.target_proj)
+        assert not output.z_t.requires_grad, "z_t has requires_grad=True when using target_proj!"
 
     def test_loss_is_finite(self, tiny_model, ctx_batch, tgt_batch):
         ema = EMAUpdater(tiny_model.context_encoder, ema_decay=0.9)
@@ -168,14 +180,33 @@ class TestEMAUpdater:
         nn.init.zeros_(enc.bias)
         return enc
 
+    @pytest.fixture
+    def proj(self):
+        proj = nn.Linear(8, 12)
+        nn.init.constant_(proj.weight, 2.0)
+        nn.init.zeros_(proj.bias)
+        return proj
+
     def test_target_initially_equals_context(self, encoder):
         ema = EMAUpdater(encoder, ema_decay=0.9)
         for cp, tp in zip(encoder.parameters(), ema.target_encoder.parameters()):
             torch.testing.assert_close(cp, tp)
 
+    def test_target_proj_initially_equals_context_proj(self, encoder, proj):
+        ema = EMAUpdater(encoder, context_proj=proj, ema_decay=0.9)
+        assert ema.target_proj is not None
+        for cp, tp in zip(proj.parameters(), ema.target_proj.parameters()):
+            torch.testing.assert_close(cp, tp)
+
     def test_target_frozen(self, encoder):
         ema = EMAUpdater(encoder, ema_decay=0.9)
         assert ema.verify_target_frozen()
+
+    def test_target_proj_frozen(self, encoder, proj):
+        ema = EMAUpdater(encoder, context_proj=proj, ema_decay=0.9)
+        assert ema.verify_target_frozen()
+        for p in ema.target_proj.parameters():
+            assert not p.requires_grad
 
     def test_ema_update_interpolates(self, encoder):
         """After update, target should interpolate between old target and context."""
@@ -194,11 +225,31 @@ class TestEMAUpdater:
         expected = 0.9 * 1.0 + 0.1 * 5.0
         assert abs(ema.target_encoder.weight.data.mean().item() - expected) < 0.01
 
+    def test_target_proj_ema_update_interpolates(self, encoder, proj):
+        """After update, target_proj should interpolate between old target_proj and context_proj."""
+        ema = EMAUpdater(encoder, context_proj=proj, ema_decay=0.9)
+        with torch.no_grad():
+            proj.weight.fill_(10.0)
+
+        assert abs(ema.target_proj.weight.data.mean().item() - 2.0) < 0.01
+        ema.update()
+
+        # τ=0.9 → 0.9*2.0 + 0.1*10.0 = 1.8 + 1.0 = 2.8
+        expected = 0.9 * 2.0 + 0.1 * 10.0
+        assert abs(ema.target_proj.weight.data.mean().item() - expected) < 0.01
 
     def test_target_still_frozen_after_update(self, encoder):
         ema = EMAUpdater(encoder, ema_decay=0.9)
         with torch.no_grad():
             for p in encoder.parameters():
+                p.fill_(2.0)
+        ema.update()
+        assert ema.verify_target_frozen()
+
+    def test_target_proj_still_frozen_after_update(self, encoder, proj):
+        ema = EMAUpdater(encoder, context_proj=proj, ema_decay=0.9)
+        with torch.no_grad():
+            for p in proj.parameters():
                 p.fill_(2.0)
         ema.update()
         assert ema.verify_target_frozen()
@@ -222,6 +273,15 @@ class TestEMAUpdater:
         ema.reset_target_to_context()
         for tp in ema.target_encoder.parameters():
             assert abs(tp.data.mean().item() - 99.0) < 0.01
+
+    def test_reset_target_proj_to_context(self, encoder, proj):
+        ema = EMAUpdater(encoder, context_proj=proj, ema_decay=0.9)
+        with torch.no_grad():
+            for p in proj.parameters():
+                p.fill_(77.0)
+        ema.reset_target_to_context()
+        for tp in ema.target_proj.parameters():
+            assert abs(tp.data.mean().item() - 77.0) < 0.01
 
 
 # ── CollapseDetector ─────────────────────────────────────────────────

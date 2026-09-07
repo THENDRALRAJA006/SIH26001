@@ -1,0 +1,16 @@
+{
+  "model_version": "v2.5-TRIGGER-AWARE-CHAMPION",
+  "feature_version": "v3.0-PROSPECTIVE-74FEAT",
+  "feature_count": 76,
+  "thresholds": {
+    "WATCH": 0.0661,
+    "WARNING": 0.198,
+    "CRITICAL": 0.499
+  },
+  "calibration_method": "IsotonicRegression",
+  "frozen_at": "2026-09-05T17:40:07.284327+00:00",
+  "shadow_mode": true,
+  "retraining_allowed": false,
+  "test_threshold_tuning_allowed": false,
+  "integrity_status": "LOCKED_IMMUTABLE_PROSPECTIVE"
+}

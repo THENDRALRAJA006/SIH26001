@@ -26,10 +26,16 @@ class AlertLevel(str, Enum):
 
 
 class AlertStatus(str, Enum):
-    PENDING   = "PENDING"
-    SENT      = "SENT"
-    FAILED    = "FAILED"
-    SUPPRESSED = "SUPPRESSED"   # e.g. ALERT_DEMO_ONLY=True
+    PENDING      = "PENDING"
+    ACTIVE       = "ACTIVE"
+    UNDER_REVIEW = "UNDER REVIEW"
+    ACKNOWLEDGED = "ACKNOWLEDGED"
+    VERIFIED     = "VERIFIED"
+    RESOLVED     = "RESOLVED"
+    ESCALATED    = "ESCALATED"
+    SENT         = "SENT"
+    FAILED       = "FAILED"
+    SUPPRESSED   = "SUPPRESSED"   # e.g. ALERT_DEMO_ONLY=True
 
 
 # ── Alert schemas ─────────────────────────────────────────────────────
@@ -51,10 +57,18 @@ class AlertCreate(AlertBase):
 
 class AlertResponse(AlertBase):
     """Alert as returned by the API."""
+    model_config = {"protected_namespaces": ()}
     alert_id: str
     created_at: datetime
     status: AlertStatus
     is_demo: bool
+    priority: Optional[str] = "P2"
+    horizon: Optional[str] = "24h"
+    model_version: Optional[str] = "v2.5-TRIGGER-AWARE-CHAMPION"
+    confidence: Optional[float] = 0.90
+    risk_score: Optional[float] = 0.75
+    assigned_to: Optional[str] = None
+    notes: Optional[str] = None
     safety_note: str = Field(
         default=(
             "DEMO ALERT — This is a simulated alert from synthetic data. "
@@ -89,6 +103,7 @@ class CitizenReportResponse(BaseModel):
     status: str = "PENDING_REVIEW"
     submitted_at: datetime
     human_review_required: bool = True
+    requires_human_review: bool = True
     note: str = (
         "Your report has been received and will be reviewed by a trained analyst "
         "before any operational use."

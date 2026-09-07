@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    historyApiFallback: true,  // React Router — serve index.html for all routes
     proxy: {
       "/api": {
         target: "http://localhost:8000",
@@ -15,5 +16,9 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    port: 4173,
+    historyApiFallback: true,
   },
 });

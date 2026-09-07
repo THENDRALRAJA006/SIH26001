@@ -1,0 +1,107 @@
+{
+  "alert_id": "ALERT-NER-HYBRID-202609051324",
+  "issuance_time_utc": "2026-09-05T13:24:52.714088+00:00",
+  "disaster_hazard": "RAINFALL_INDUCED_SLOPE_FAILURE",
+  "production_model": {
+    "name": "Improved Hybrid Ensemble",
+    "version": "v2.2-PREDICTION-OPTIMIZED",
+    "decision_rule": "Validation-Tuned Calibrated Simplex Stacking (FPR <= 5% Ceiling)",
+    "primary_horizon": "24h",
+    "median_advance_lead_time": "23.5 hours"
+  },
+  "meteorological_source": {
+    "provider": "Open-Meteo GFS Seamless Numerical Weather Prediction",
+    "status": "LIVE_VERIFIED",
+    "data_age_minutes": 15.0
+  },
+  "target_disaster_agencies": [
+    "National Disaster Management Authority (NDMA)",
+    "Assam State Disaster Management Authority (ASDMA)",
+    "Nagaland State Disaster Management Authority (NSDMA)",
+    "Sikkim State Disaster Management Authority (SSDMA)",
+    "Border Roads Organisation (BRO Projects Swastik & Pushpak)",
+    "North Eastern Space Applications Centre (NESAC / ISRO)"
+  ],
+  "corridor_action_schedule": [
+    {
+      "priority_rank": 1,
+      "corridor_id": "REAL-NER-003",
+      "corridor_name": "Imphal - Senapati NH-2 Corridor",
+      "state": "Manipur",
+      "risk_probability_24h": 0.2495,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4909,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    },
+    {
+      "priority_rank": 2,
+      "corridor_id": "REAL-NER-004",
+      "corridor_name": "Kohima - Phek Ridge",
+      "state": "Nagaland",
+      "risk_probability_24h": 0.2452,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4287,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    },
+    {
+      "priority_rank": 3,
+      "corridor_id": "REAL-NER-001",
+      "corridor_name": "Guwahati Hills Corridor",
+      "state": "Assam",
+      "risk_probability_24h": 0.2436,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4279,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    },
+    {
+      "priority_rank": 4,
+      "corridor_id": "REAL-NER-008",
+      "corridor_name": "Gangtok - Teesta Valley",
+      "state": "Sikkim",
+      "risk_probability_24h": 0.2419,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4271,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    },
+    {
+      "priority_rank": 5,
+      "corridor_id": "REAL-NER-002",
+      "corridor_name": "Shillong Plateau / Sohra",
+      "state": "Meghalaya",
+      "risk_probability_24h": 0.2414,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4268,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    },
+    {
+      "priority_rank": 6,
+      "corridor_id": "REAL-NER-005",
+      "corridor_name": "Aizawl Mountain Slopes",
+      "state": "Mizoram",
+      "risk_probability_24h": 0.2414,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4268,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    },
+    {
+      "priority_rank": 7,
+      "corridor_id": "REAL-NER-006",
+      "corridor_name": "Bhalukpong - Tawang Corridor",
+      "state": "Arunachal Pradesh",
+      "risk_probability_24h": 0.2408,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4265,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    },
+    {
+      "priority_rank": 8,
+      "corridor_id": "REAL-NER-007",
+      "corridor_name": "Atharamura Hills",
+      "state": "Tripura",
+      "risk_probability_24h": 0.2408,
+      "risk_level_24h": "MEDIUM / ADVISORY",
+      "composite_priority": 0.4265,
+      "recommended_action": "Maintain 15-minute rain gauge polling, monitor drainage culverts, alert local district commissioner."
+    }
+  ]
+}

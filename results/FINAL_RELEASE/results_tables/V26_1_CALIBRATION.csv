@@ -1,0 +1,5 @@
+method,Brier,ECE,fitted_on,evaluated_on
+Raw Uncalibrated,0.4391,0.6339,None,Fold_C_2015
+Temperature Scaling (Platt),0.0128,0.0071,Folds_A+B (2013-14),Fold_C_2015
+Isotonic Regression,0.0128,0.0068,Folds_A+B (2013-14),Fold_C_2015
+Beta Calibration,0.0128,0.0071,Folds_A+B (2013-14),Fold_C_2015

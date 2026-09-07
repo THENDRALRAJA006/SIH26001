@@ -168,6 +168,8 @@ def main(args: argparse.Namespace) -> None:
         cfg["training"]["epochs"] = 3
         cfg["training"]["warmup_epochs"] = 1
         cfg["collapse_detection"]["check_interval_epochs"] = 1
+    elif args.epochs is not None:
+        cfg["training"]["epochs"] = args.epochs
 
     batch_size = cfg.get("training", {}).get("batch_size", 128)
     train_ds = JEPAPretrainDataset(ctx_train, tgt_train, augment=True, noise_std=0.01)
@@ -198,6 +200,8 @@ if __name__ == "__main__":
     parser.add_argument("--config", default="ml/configs/jepa_config.yaml")
     parser.add_argument("--checkpoint-dir", default="ml/checkpoints/jepa_pretrained")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--epochs", type=int, default=None,
+                        help="Override number of training epochs")
     parser.add_argument("--fast", action="store_true",
                         help="Quick run: tiny model, 3 epochs, weekly stride (for CI)")
     args = parser.parse_args()
