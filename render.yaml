@@ -1,0 +1,68 @@
+# =====================================================================
+# LAND-JEPA — Render Blueprint Configuration (render.yaml)
+# =====================================================================
+# This file defines the infrastructure specification for deploying
+# LAND-JEPA on Render using native Docker.
+#
+# IMPORTANT SECURITY NOTE:
+# Never commit secrets to this file. Secret keys (API tokens, passwords)
+# must be configured directly in the Render Dashboard Environment tab.
+# =====================================================================
+
+services:
+  - type: web
+    name: land-jepa-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: standard
+    region: singapore  # Closest to India / Northeast India region
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      # Application runtime configuration
+      - key: PORT
+        value: 10000
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: DEMO_MODE
+        value: "true"
+      - key: ALERT_DEMO_ONLY
+        value: "true"
+      - key: ML_DEVICE
+        value: "cpu"
+      - key: WEATHER_PROVIDER
+        value: "open_meteo"
+      - key: WEATHER_PRIMARY_PROVIDER
+        value: "openweather"
+      - key: RAINFALL_PROVIDER
+        value: "demo"
+      - key: SOIL_MOISTURE_PROVIDER
+        value: "demo"
+      - key: TERRAIN_PROVIDER
+        value: "demo"
+      - key: INSAR_ENABLED
+        value: "false"
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: ALLOWED_ORIGINS
+        value: "https://sih26001-cuk1.onrender.com,http://localhost:5173,http://localhost:3000"
+
+      # ── Secret placeholders (Must be populated in Render Dashboard) ──
+      # - key: SECRET_KEY
+      #   generateValue: true
+      # - key: DATABASE_URL
+      #   fromDatabase:
+      #     name: landjepa-postgis
+      #     property: connectionString
+      # - key: OPENWEATHER_API_KEY
+      #   sync: false
+      # - key: ARCGIS_API_KEY
+      #   sync: false
+      # - key: ARCGIS_ORIGIN
+      #   value: "https://sih26001-cuk1.onrender.com"
+      # - key: ULTRALYTICS_API_KEY
+      #   sync: false

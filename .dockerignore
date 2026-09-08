@@ -1,0 +1,55 @@
+# =====================================================================
+# LAND-JEPA — .dockerignore
+# Exclude non-runtime, development, secret, and heavy assets from Docker image
+# =====================================================================
+
+# ── Git & Version Control ────────────────────────────────────────────
+.git/
+.github/
+.gitignore
+
+# ── IDEs & Editor configs ────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Environment & Secrets (NEVER bake secrets into Docker images) ────
+.env
+*.env
+.env.*
+*.pem
+*.key
+
+# ── Python caches & testing ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+tests/
+
+# ── Frontend & Mobile (Separate deployments/services) ────────────────
+node_modules/
+frontend/
+mobile/
+
+# ── Heavy Development & Training Artifacts ───────────────────────────
+# Exclude training images dataset (model weights are loaded from ml/checkpoints/)
+data/datasets/
+data/real/raw/terrain/*.tif
+runs/
+notebooks/
+
+# ── Logs & Crash Dumps ────────────────────────────────────────────────
+*.log
+logs/
+prompt_dump*.txt
+hs_err_pid*.log
+replay_pid*.log
