@@ -26,9 +26,12 @@ class RiskLevel(str, Enum):
 
 
 class HorizonHours(int, Enum):
-    NOW  = 0
-    H24  = 24
-    H48  = 48
+    NOW = 0
+    H6  = 6
+    H12 = 12
+    H24 = 24
+    H48 = 48
+    H72 = 72
 
 
 # ── Request schemas ───────────────────────────────────────────────────

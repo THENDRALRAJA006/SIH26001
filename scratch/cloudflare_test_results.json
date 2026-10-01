@@ -1,0 +1,26 @@
+{
+  "url": "https://dividend-status-duck-sort.trycloudflare.com",
+  "results": {
+    "health": {
+      "status": "PASS",
+      "latency_ms": 254.2,
+      "code": 200
+    },
+    "forecast": {
+      "status": "PASS",
+      "latency_ms": 914.2,
+      "code": 200
+    },
+    "zones": {
+      "status": "PASS",
+      "latency_ms": 92.4,
+      "code": 200,
+      "count": 8
+    },
+    "citizen_report": {
+      "status": "PASS",
+      "latency_ms": 206.1,
+      "code": 201
+    }
+  }
+}

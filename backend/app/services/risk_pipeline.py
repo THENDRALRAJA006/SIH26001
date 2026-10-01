@@ -356,18 +356,30 @@ class RiskPipelineService:
                 x_physics,
                 is_demo,
             )
-            multi_horizon = pred_out.risk_probabilities
-            p_curr = multi_horizon.get(f"{horizon_hours}h", multi_horizon["0h"])
-            risk_level = pred_out.risk_levels.get(f"{horizon_hours}h", pred_out.risk_levels["0h"])
+            multi_horizon = dict(pred_out.risk_probabilities)
+            p0 = multi_horizon.get("0h", 0.1)
+            p24 = multi_horizon.get("24h", p0)
+            p48 = multi_horizon.get("48h", p24)
+            if "6h" not in multi_horizon:
+                multi_horizon["6h"] = round(float(p0 * 0.75 + p24 * 0.25), 4)
+            if "12h" not in multi_horizon:
+                multi_horizon["12h"] = round(float(p0 * 0.5 + p24 * 0.5), 4)
+            if "72h" not in multi_horizon:
+                multi_horizon["72h"] = round(float(min(1.0, p48 * 1.05)), 4)
+            p_curr = multi_horizon.get(f"{horizon_hours}h", multi_horizon.get("0h", p0))
+            risk_level = pred_out.risk_levels.get(f"{horizon_hours}h") or _score_to_level(p_curr, self._thresholds)
             confidence = pred_out.confidence
             raw_factors = pred_out.leading_factors
             model_ver = pred_out.model_version
         else:
             # Fallback when model weights not initialized
             p0 = self._demo_fallback_score(zone_id)
-            p24 = min(1.0, p0 * 1.15)
-            p48 = min(1.0, p0 * 1.28)
-            multi_horizon = {"0h": p0, "24h": p24, "48h": p48}
+            p6 = round(p0 * 1.04, 4)
+            p12 = round(p0 * 1.08, 4)
+            p24 = min(1.0, round(p0 * 1.15, 4))
+            p48 = min(1.0, round(p0 * 1.28, 4))
+            p72 = min(1.0, round(p0 * 1.35, 4))
+            multi_horizon = {"0h": p0, "6h": p6, "12h": p12, "24h": p24, "48h": p48, "72h": p72}
             p_curr = multi_horizon.get(f"{horizon_hours}h", p0)
             risk_level = _score_to_level(p_curr, self._thresholds)
             confidence = 0.85

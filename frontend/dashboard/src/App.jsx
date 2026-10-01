@@ -30,6 +30,7 @@ import AiPage            from "./pages/AiPage";
 import EarlyWarningPage  from "./pages/EarlyWarningPage";
 import SystemStatusPage  from "./pages/SystemStatusPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import LiveGisPage       from "./pages/LiveGisPage";
 
 export default function App() {
   return (
@@ -56,7 +57,9 @@ export default function App() {
       {/* Dedicated Officer Command Center Routes */}
       <Route path="/officer/dashboard"  element={<OfficerLayout />} />
       <Route path="/officer/forecast"   element={<OfficerLayout />} />
-      <Route path="/officer/gis"        element={<OfficerLayout />} />
+      <Route path="/officer/live-gis"   element={<LiveGisPage />} />
+      <Route path="/officer/gis"        element={<LiveGisPage />} />
+      <Route path="/officer/weather"    element={<WeatherPage />} />
       <Route path="/officer/alerts"     element={<OfficerLayout />} />
       <Route path="/officer/reports"    element={<OfficerLayout />} />
       <Route path="/officer/analytics"  element={<OfficerLayout />} />
@@ -68,7 +71,7 @@ export default function App() {
 
       {/* Convenience redirects */}
       <Route path="/officer"            element={<Navigate to="/officer/dashboard" replace />} />
-      <Route path="/live-gis"           element={<Navigate to="/officer/gis" replace />} />
+      <Route path="/live-gis"           element={<Navigate to="/officer/live-gis" replace />} />
 
       {/* 404 fallback */}
       <Route path="*"                   element={<Navigate to="/" replace />} />

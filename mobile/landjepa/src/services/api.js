@@ -15,8 +15,12 @@
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const PRODUCTION_API_URL = "https://feelings-properly-seo-old.trycloudflare.com";
+
 const DEFAULT_HOST =
-  Platform.OS === "android" ? "http://10.0.2.2:8000" : "http://localhost:8000";
+  typeof __DEV__ !== "undefined" && __DEV__
+    ? (Platform.OS === "android" ? "http://10.0.2.2:8000" : "http://localhost:8000")
+    : PRODUCTION_API_URL;
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || DEFAULT_HOST;
 

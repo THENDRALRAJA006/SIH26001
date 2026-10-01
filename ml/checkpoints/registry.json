@@ -1,0 +1,31 @@
+{
+  "LAND-JEPA:v1.0.0": {
+    "model_name": "LAND-JEPA",
+    "version": "v1.0.0",
+    "status": "PRODUCTION",
+    "checkpoint_path": "ml\\checkpoints\\land_jepa_production\\land_jepa_weights.pt",
+    "training_date": "2026-09-04T17:04:25.034876+00:00",
+    "dataset_version": "NER-DEMO-v1",
+    "configuration": {
+      "temporal_encoder": "JEPA-TCN",
+      "fusion": "gated",
+      "horizon": [
+        0,
+        24,
+        48
+      ]
+    },
+    "metrics": {
+      "recall": 1.0,
+      "fnr": 0.0,
+      "precision": 0.0144,
+      "f1": 0.0285,
+      "aucpr": 0.0124,
+      "auroc": 0.4646,
+      "brier_score": 0.0288,
+      "ece": 0.128,
+      "latency_ms": 0.185
+    },
+    "notes": "Full Fused Multimodal LAND-JEPA Model"
+  }
+}

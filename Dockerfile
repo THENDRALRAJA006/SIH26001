@@ -61,8 +61,7 @@ COPY backend/ /app/backend/
 COPY ml/ /app/ml/
 COPY gis/ /app/gis/
 COPY data/ /app/data/
-# Copy optional model weights if present (wildcard avoids build failure if omitted from git)
-COPY [y]olov8n.pt* /app/
+COPY yolov8n.pt /app/yolov8n.pt
 
 # Ensure persistent directories exist and configure non-root user for security
 RUN mkdir -p /app/results /app/data/uploads /app/ml/checkpoints \

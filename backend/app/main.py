@@ -75,6 +75,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=r"^https://.*\.trycloudflare\.com$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -88,6 +89,8 @@ async def health() -> dict:
     uptime = svc.get_uptime_seconds()
     return {
         "status": "ok",
+        "service": "LAND-JEPA",
+        "model": "v3.0-GEOTEMPORAL",
         "version": settings.APP_VERSION,
         "environment": "development" if settings.DEBUG else "production",
         "uptime_seconds": round(uptime, 1),
@@ -104,19 +107,22 @@ async def health_full() -> dict:
 
 
 # ── API v1 routers ────────────────────────────────────────────────────
-from app.api.v1 import risk, alerts, model, system, forecast, live_test, auth, satellite, notifications, geology, benchmark  # noqa: E402
+from app.api.v1 import risk, alerts, model, system, forecast, live_test, auth, satellite, notifications, geology, benchmark, gis, weather, citizen_vision  # noqa: E402
 
-app.include_router(auth.router,          prefix="/api/v1/auth",          tags=["auth"])
-app.include_router(risk.router,          prefix="/api/v1/risk",          tags=["risk"])
-app.include_router(alerts.router,        prefix="/api/v1/alerts",        tags=["alerts"])
-app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["notifications"])
-app.include_router(geology.router,       prefix="/api/v1",              tags=["geology"])
-app.include_router(model.router,         prefix="/api/v1/model",         tags=["model"])
-app.include_router(system.router,        prefix="/api/v1/system",        tags=["system"])
-app.include_router(system.router,        prefix="/api/v1/data",          tags=["data"])
-app.include_router(forecast.router,      prefix="/api/v1/forecast",      tags=["forecast"])
-app.include_router(live_test.router,     prefix="/api/v1/live-test",     tags=["live-test"])
-app.include_router(benchmark.router,     prefix="/api/v1/benchmark",     tags=["benchmark"])
+app.include_router(auth.router,           prefix="/api/v1/auth",           tags=["auth"])
+app.include_router(gis.router,            prefix="/api/v1/gis",            tags=["gis"])
+app.include_router(weather.router,        prefix="/api/v1/weather",        tags=["weather"])
+app.include_router(citizen_vision.router, prefix="/api/v1/citizen",        tags=["citizen-vision"])
+app.include_router(risk.router,           prefix="/api/v1/risk",           tags=["risk"])
+app.include_router(alerts.router,         prefix="/api/v1/alerts",         tags=["alerts"])
+app.include_router(notifications.router,  prefix="/api/v1/notifications",  tags=["notifications"])
+app.include_router(geology.router,        prefix="/api/v1",               tags=["geology"])
+app.include_router(model.router,          prefix="/api/v1/model",          tags=["model"])
+app.include_router(system.router,         prefix="/api/v1/system",         tags=["system"])
+app.include_router(system.router,         prefix="/api/v1/data",           tags=["data"])
+app.include_router(forecast.router,       prefix="/api/v1/forecast",       tags=["forecast"])
+app.include_router(live_test.router,      prefix="/api/v1/live-test",      tags=["live-test"])
+app.include_router(benchmark.router,      prefix="/api/v1/benchmark",      tags=["benchmark"])
 app.include_router(satellite.router)
 
 
@@ -288,5 +294,27 @@ async def execute_prediction(req: PredictionRequest) -> PredictionResponse:
 @app.post("/api/v1/prediction", response_model=PredictionResponse, tags=["prediction"], summary="Execute LAND-JEPA Prediction Transaction (API v1)")
 async def execute_prediction_v1(req: PredictionRequest) -> PredictionResponse:
     return await _run_prediction_logic(req)
+
+
+# ── Mount Production Web Frontend (if built) ─────────────────────────
+FRONTEND_DIST = ROOT / "frontend" / "dashboard" / "dist"
+if FRONTEND_DIST.exists():
+    from fastapi.staticfiles import StaticFiles
+    from starlette.responses import FileResponse
+
+    if (FRONTEND_DIST / "assets").exists():
+        app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        # Prevent intercepting API routes or docs if unhandled
+        if full_path.startswith(("api/", "health", "docs", "redoc", "openapi.json")):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Not Found")
+        file_path = FRONTEND_DIST / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(FRONTEND_DIST / "index.html")
+
 
 

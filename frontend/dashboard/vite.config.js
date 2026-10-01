@@ -8,11 +8,11 @@ export default defineConfig({
     historyApiFallback: true,  // React Router — serve index.html for all routes
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://localhost:8001",
         changeOrigin: true,
       },
       "/health": {
-        target: "http://localhost:8000",
+        target: "http://localhost:8001",
         changeOrigin: true,
       },
     },

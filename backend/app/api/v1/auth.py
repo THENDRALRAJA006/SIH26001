@@ -56,6 +56,14 @@ AUTHORIZED_OFFICERS = {
         "jurisdiction": "All NER Corridors",
         "badge_id": "HQ-ADMIN-0001",
     },
+    "commander": {
+        "password": "zaix2026",
+        "name": "Command Incident Commander",
+        "designation": "Disaster Response Director",
+        "role": "officer",
+        "jurisdiction": "Northeast Regional Command (NER)",
+        "badge_id": "NER-CMD-2026",
+    },
 }
 
 

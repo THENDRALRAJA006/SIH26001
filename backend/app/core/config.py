@@ -7,15 +7,15 @@ All secrets must be environment variables — never hard-coded.
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import List
+from typing import List, Optional
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", "../.env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -33,9 +33,17 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "landjepa"
     POSTGRES_USER: str = "landjepa_user"
     POSTGRES_PASSWORD: str = "changeme"
+    DATABASE_URL_DIRECT: Optional[str] = Field(default=None, validation_alias="DATABASE_URL")
 
     @property
     def DATABASE_URL(self) -> str:
+        if self.DATABASE_URL_DIRECT:
+            url = self.DATABASE_URL_DIRECT
+            if url.startswith("postgres://"):
+                url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
+                url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            return url
         return (
             f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
@@ -44,6 +52,15 @@ class Settings(BaseSettings):
     @property
     def DATABASE_URL_SYNC(self) -> str:
         """Synchronous URL for Alembic migrations."""
+        if self.DATABASE_URL_DIRECT:
+            url = self.DATABASE_URL_DIRECT
+            if url.startswith("postgres://"):
+                url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+            elif url.startswith("postgresql+asyncpg://"):
+                url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://", 1)
+            elif url.startswith("postgresql://") and not url.startswith("postgresql+psycopg2://"):
+                url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+            return url
         return (
             f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
@@ -79,9 +96,21 @@ class Settings(BaseSettings):
 
     # ── External API Keys ─────────────────────────────────────────────
     OPEN_METEO_API_KEY: str = ""
+    OPENWEATHER_API_KEY: str = ""
+    WEATHER_PRIMARY_PROVIDER: str = "openweather"  # 'openweather' | 'open_meteo' | 'existing'
     USGS_API_KEY: str = ""
     NASA_EARTHDATA_TOKEN: str = ""
     MAPTILER_API_KEY: str = ""
+    ARCGIS_API_KEY: str = ""
+    ARCGIS_ORIGIN: str = "http://localhost:5173"
+    ULTRALYTICS_API_KEY: str = ""
+
+    # ── Citizen Vision Verification (Ultralytics YOLO) ─────────────────
+    CITIZEN_VISION_MODEL_PATH: str = "ml/checkpoints/citizen_vision/best.pt"
+    CITIZEN_VISION_CONFIDENCE_THRESHOLD: float = 0.25
+    CITIZEN_VISION_IOU_THRESHOLD: float = 0.45
+    CITIZEN_VISION_DATASET_DIR: str = "data/datasets"
+    CITIZEN_VISION_MODEL_VERSION: str = "citizen-vision-v1"
 
     # ── Scheduling ────────────────────────────────────────────────────
     RAINFALL_REFRESH_INTERVAL_MINUTES: int = 60

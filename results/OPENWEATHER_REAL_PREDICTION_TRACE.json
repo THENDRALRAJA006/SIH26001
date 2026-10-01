@@ -1,0 +1,396 @@
+{
+  "prediction_id": "PRED-20260908-52A7F0",
+  "zone_id": "REAL-NER-001",
+  "model_version": "vX-development-geological",
+  "prediction_time": "2026-09-08T19:46:20.640826+00:00",
+  "horizons": {
+    "6h": {
+      "probability": 0.46,
+      "raw_probability": 0.49,
+      "tier": "WATCH",
+      "confidence": 0.92
+    },
+    "12h": {
+      "probability": 0.5185,
+      "raw_probability": 0.5441,
+      "tier": "WATCH",
+      "confidence": 0.88
+    },
+    "24h": {
+      "probability": 0.4807,
+      "raw_probability": 0.5098,
+      "tier": "WATCH",
+      "confidence": 0.84
+    },
+    "48h": {
+      "probability": 0.4408,
+      "raw_probability": 0.4708,
+      "tier": "WATCH",
+      "confidence": 0.8
+    },
+    "72h": {
+      "probability": 0.4691,
+      "raw_probability": 0.4991,
+      "tier": "WATCH",
+      "confidence": 0.76
+    }
+  },
+  "gating_weights": {
+    "temporal": 0.2538,
+    "terrain": 0.2382,
+    "trigger": 0.2145,
+    "geology": 0.2935
+  },
+  "data_sources": {
+    "weather": {
+      "source": "OPENWEATHER",
+      "quality": "GOOD",
+      "age_minutes": 4.6
+    },
+    "forecast": {
+      "source": "OPENWEATHER_5DAY_3H",
+      "spread_6h": 0.81
+    },
+    "insar": {
+      "available": true,
+      "coherence": 0.355,
+      "los_mm_yr": -6.39,
+      "status": "AVAILABLE"
+    },
+    "seismic": {
+      "pga_g": null,
+      "pga_status": "UNAVAILABLE",
+      "gmpe": "Campbell2003_AtkinsonBoore"
+    },
+    "tectonic": {
+      "velocity_mm_yr": 38.2,
+      "azimuth_deg": 32.5,
+      "source": "GSI_SEISMOTECTONIC_ATLAS_NER_ITRF2014_GPS"
+    }
+  },
+  "data_provenance": {
+    "weather": {
+      "provider": "OpenWeather REST API (api.openweathermap.org/data/2.5/weather)",
+      "dataset": "OpenWeather Current Weather Live Observations",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2026-09-08T19:41:44+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.0,
+      "unit": "mm/h",
+      "temperature_c": 26.0,
+      "humidity_pct": 94.0,
+      "pressure_hpa": 1005.0,
+      "wind_speed_ms": 5.1,
+      "soil_moisture_m3m3": 0.35,
+      "soil_moisture_status": "PROVENANCE_SEPARATE_HYDROLOGY_PROXY",
+      "quality": "GOOD",
+      "data_age_minutes": 4.6,
+      "availability_status": "REAL",
+      "is_cached": true
+    },
+    "forecast": {
+      "provider": "OpenWeather REST API (api.openweathermap.org/data/2.5/forecast)",
+      "dataset": "OpenWeather 5-Day / 3-Hour Forecast Data (6h-72h Horizons)",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "forecast_issued_at": "2026-09-08T18:00:00+00:00",
+      "data_timestamp": "2026-09-08T19:41:44+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 13.78,
+      "unit": "mm (24h accumulated)",
+      "spread_6h": 0.81,
+      "quality": "nominal",
+      "data_age_minutes": 4.6,
+      "availability_status": "REAL",
+      "horizons": {
+        "6h": {
+          "horizon_hours": 6,
+          "forecast_issued_at": "2026-09-08T18:00:00+00:00",
+          "forecast_valid_time": "2026-09-09T00:00:00+00:00",
+          "retrieved_at": "2026-09-08T19:45:40.493037+00:00",
+          "source": "OPENWEATHER",
+          "forecast_rain_mm": 3.01,
+          "accumulated_rain_mm": 4.05,
+          "pop": 1.0,
+          "temperature_c": 26.51,
+          "humidity_pct": 93.0,
+          "pressure_hpa": 1005.0,
+          "wind_speed_ms": 0.75,
+          "condition": "Rain",
+          "description": "moderate rain",
+          "quality": "GOOD"
+        },
+        "12h": {
+          "horizon_hours": 12,
+          "forecast_issued_at": "2026-09-08T18:00:00+00:00",
+          "forecast_valid_time": "2026-09-09T06:00:00+00:00",
+          "retrieved_at": "2026-09-08T19:45:40.493037+00:00",
+          "source": "OPENWEATHER",
+          "forecast_rain_mm": 0.8,
+          "accumulated_rain_mm": 10.23,
+          "pop": 1.0,
+          "temperature_c": 30.27,
+          "humidity_pct": 68.0,
+          "pressure_hpa": 1006.0,
+          "wind_speed_ms": 1.15,
+          "condition": "Rain",
+          "description": "light rain",
+          "quality": "GOOD"
+        },
+        "24h": {
+          "horizon_hours": 24,
+          "forecast_issued_at": "2026-09-08T18:00:00+00:00",
+          "forecast_valid_time": "2026-09-09T18:00:00+00:00",
+          "retrieved_at": "2026-09-08T19:45:40.493037+00:00",
+          "source": "OPENWEATHER",
+          "forecast_rain_mm": 2.15,
+          "accumulated_rain_mm": 13.78,
+          "pop": 0.88,
+          "temperature_c": 28.16,
+          "humidity_pct": 90.0,
+          "pressure_hpa": 1006.0,
+          "wind_speed_ms": 1.06,
+          "condition": "Rain",
+          "description": "light rain",
+          "quality": "GOOD"
+        },
+        "48h": {
+          "horizon_hours": 48,
+          "forecast_issued_at": "2026-09-08T18:00:00+00:00",
+          "forecast_valid_time": "2026-09-10T18:00:00+00:00",
+          "retrieved_at": "2026-09-08T19:45:40.493037+00:00",
+          "source": "OPENWEATHER",
+          "forecast_rain_mm": 0.62,
+          "accumulated_rain_mm": 25.92,
+          "pop": 0.54,
+          "temperature_c": 27.81,
+          "humidity_pct": 89.0,
+          "pressure_hpa": 1007.0,
+          "wind_speed_ms": 0.76,
+          "condition": "Rain",
+          "description": "light rain",
+          "quality": "GOOD"
+        },
+        "72h": {
+          "horizon_hours": 72,
+          "forecast_issued_at": "2026-09-08T18:00:00+00:00",
+          "forecast_valid_time": "2026-09-11T18:00:00+00:00",
+          "retrieved_at": "2026-09-08T19:45:40.493037+00:00",
+          "source": "OPENWEATHER",
+          "forecast_rain_mm": 6.0,
+          "accumulated_rain_mm": 52.6,
+          "pop": 1.0,
+          "temperature_c": 26.22,
+          "humidity_pct": 97.0,
+          "pressure_hpa": 1008.0,
+          "wind_speed_ms": 2.67,
+          "condition": "Rain",
+          "description": "moderate rain",
+          "quality": "GOOD"
+        }
+      }
+    },
+    "soil": {
+      "provider": "Open-Meteo (ERA5-Land 0-1cm Hydrology Proxy)",
+      "dataset": "soil_moisture_0_to_1cm",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2026-09-08T19:41:44+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.35,
+      "unit": "m3/m3",
+      "quality": "nominal",
+      "data_age_minutes": 4.6,
+      "availability_status": "REAL"
+    },
+    "terrain": {
+      "provider": "ESA / Copernicus Programme",
+      "dataset": "Copernicus 30m Global DEM (GLO-30)",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2021-04-01T00:00:00Z",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 22.5,
+      "unit": "degrees slope",
+      "elevation_m": 285.0,
+      "aspect_deg": 185.0,
+      "twi": 8.1,
+      "relief_m": 380.0,
+      "quality": "verified_copernicus_dem_30m",
+      "data_age_minutes": 0.0,
+      "availability_status": "STATIC PRIOR"
+    },
+    "road": {
+      "provider": "LAND-JEPA Geotechnical Physics Engine",
+      "dataset": "Corridor Cut-Slope Infrastructure Proxies (V26)",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2026-09-08T19:46:20.640826+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.442,
+      "unit": "proximity index [0, 1]",
+      "quality": "physics_derived_proxy",
+      "data_age_minutes": 0.0,
+      "availability_status": "PHYSICS PROXY"
+    },
+    "drainage": {
+      "provider": "LAND-JEPA Hydromorphology Engine",
+      "dataset": "Topographic Wetness & Culvert Choke Vulnerability (V26)",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2026-09-08T19:46:20.640826+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 0.361,
+      "unit": "drainage proximity index [0, 1]",
+      "quality": "physics_derived_proxy",
+      "data_age_minutes": 0.0,
+      "availability_status": "PHYSICS PROXY"
+    },
+    "tectonic": {
+      "provider": "Geological Survey of India (GSI) / Continuous GPS (ITRF2014)",
+      "dataset": "GSI_SEISMOTECTONIC_ATLAS_NER_ITRF2014_GPS",
+      "reference_frame": "ITRF2014",
+      "valid_date": "2010-01-01T00:00:00Z to 2030-12-31T23:59:59Z",
+      "spatial_source": "Corridor 10km buffer (26.175, 91.75)",
+      "processing_derivation_method": "Continuous GPS station velocity inversion relative to stable Indian Plate; Oldham / Brahmaputra active fault GIS buffer",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2026-09-08T19:46:20.640826+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": 38.2,
+      "unit": "mm/year",
+      "azimuth_deg": 32.5,
+      "strain_rate_nstrain_yr": 32.0,
+      "nearest_major_fault": "Brahmaputra Boundary / Oldham Fault System",
+      "distance_to_fault_km": 22.0,
+      "quality": "verified_scientific_geodetic_prior",
+      "data_age_minutes": 0.0,
+      "availability_status": "STATIC TECTONIC PRIOR",
+      "label": "STATIC TECTONIC PRIOR"
+    },
+    "seismic": {
+      "provider": "National Center for Seismology (NCS) India / USGS ComCat",
+      "dataset": "NER Historical & Continuous Broadband Network Catalog",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2026-09-08T19:46:20.640826+00:00",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": null,
+      "unit": "fraction of g",
+      "pga_status": "UNAVAILABLE",
+      "why_unavailable": "NO_EARTHQUAKE_WITHIN_24H_ATTENUATION_WINDOW",
+      "nearest_event_id": "EQ-NER-2026-09-04",
+      "nearest_event_time": "2026-09-04T12:00:00+00:00",
+      "nearest_event_magnitude": 3.8,
+      "nearest_event_distance_km": 91.7,
+      "ground_motion_source_model": "Campbell-Bozorgnia (2014) / Atkinson-Boore (2003) GMPE",
+      "quality": "catalog_complete_zone_v",
+      "data_age_minutes": 0.0,
+      "availability_status": "UNAVAILABLE"
+    },
+    "sentinel1": {
+      "provider": "European Space Agency (ESA) Copernicus / Alaska Satellite Facility (ASF) DAAC",
+      "dataset": "Sentinel-1 C-SAR Interferometric Wide (IW) Level-1 Single Look Complex (SLC)",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2016-10-09T11:56:45Z",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "product_id": "S1A_IW_SLC__1SSV_20161009T115645_20161009T115713_013413_0156A2_F9CC",
+      "track": 41,
+      "flight_direction": "ASCENDING",
+      "footprint": "POLYGON ((90.432014 27.160503, 90.797478 25.476746, 93.274811 25.890694, 92.947693 27.571493, 90.432014 27.160503))",
+      "size_mb": 2512.7,
+      "quality": "esa_standard_slc_verified",
+      "availability_status": "AUTHENTIC CATALOGED SCENE"
+    },
+    "insar": {
+      "provider": "Sentinel-1 C-SAR Phase Interferometry",
+      "dataset": "real_ner_insar (Sentinel-1 InSAR Deformation Stream)",
+      "request_time": "2026-09-08T19:46:20.640826+00:00",
+      "data_timestamp": "2016-10-09T11:56:45Z",
+      "latitude": 26.175,
+      "longitude": 91.75,
+      "value": null,
+      "unit": "mm/year",
+      "coherence": null,
+      "available": false,
+      "status": "UNAVAILABLE",
+      "reason": "Phase unwrapping unavailable; broadleaf rainforest temporal decorrelation (coherence < 0.20); zero synthetic substitution",
+      "quality": "DECORRELATED_VEGETATION_UNPROCESSED",
+      "data_age_minutes": 0.0,
+      "availability_status": "UNAVAILABLE"
+    },
+    "cross_check_diagnostics": {
+      "temperature_difference_c": 1.13,
+      "precipitation_difference_mm": 0.0,
+      "wind_difference_ms": 4.28,
+      "comparison_summary": "DIAGNOSTIC_CROSS_CHECK_ONLY",
+      "openweather_temp_c": 25.97,
+      "openmeteo_temp_c": 27.1
+    }
+  },
+  "model_provenance": {
+    "model_name": "LandJEPAvXGeologicalModel",
+    "model_version": "vX-development-geological",
+    "candidate_tag": "vX-development-geological",
+    "is_physics_fallback": false,
+    "status_label": "AI CANDIDATE MODEL ACTIVE",
+    "weights_status": "untrained_dev_candidate",
+    "gating_weights": {
+      "temporal": 0.2538,
+      "terrain": 0.2382,
+      "trigger": 0.2145,
+      "geology": 0.2935
+    }
+  },
+  "prediction_provenance": {
+    "prediction_id": "PRED-20260908-52A7F0",
+    "zone_id": "REAL-NER-001",
+    "prediction_time": "2026-09-08T19:46:20.640826+00:00",
+    "feature_version": "v2.6.1-geological-x102",
+    "persisted": true,
+    "ledger_path": "results/predictions_ledger.jsonl",
+    "causality_checks": {
+      "observation_time_le_prediction_time": {
+        "passed": true,
+        "observation_time": "2026-09-08T19:41:44+00:00",
+        "prediction_time": "2026-09-08T19:46:20.640826+00:00",
+        "status": "PASS"
+      },
+      "forecast_issued_at_le_prediction_time": {
+        "passed": true,
+        "forecast_issued_at": "2026-09-08T18:00:00+00:00",
+        "prediction_time": "2026-09-08T19:46:20.640826+00:00",
+        "status": "PASS"
+      },
+      "satellite_acquisition_time_le_prediction_time": {
+        "passed": true,
+        "satellite_acquisition_time": "2016-10-09T11:56:45+00:00",
+        "prediction_time": "2026-09-08T19:46:20.640826+00:00",
+        "status": "PASS"
+      },
+      "seismic_event_time_le_prediction_time": {
+        "passed": true,
+        "seismic_event_time": "2026-09-04T12:00:00+00:00",
+        "prediction_time": "2026-09-08T19:46:20.640826+00:00",
+        "status": "PASS"
+      },
+      "tectonic_valid_time_le_prediction_time": {
+        "passed": true,
+        "tectonic_valid_from": "2010-01-01T00:00:00+00:00",
+        "prediction_time": "2026-09-08T19:46:20.640826+00:00",
+        "status": "PASS"
+      }
+    },
+    "all_causality_passed": true
+  },
+  "physics_state": {
+    "soil_water_index": 0.203,
+    "pore_pressure_kPa": 1.051,
+    "factor_of_safety": 2.697,
+    "is_critical": false,
+    "slope_deg": 22.5
+  },
+  "disclaimer": "vX-development-geological candidate model output. Requires expert validation by GSI / NDMA before any operational use. Do NOT make emergency decisions based solely on this output."
+}

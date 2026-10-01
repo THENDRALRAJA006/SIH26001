@@ -15,8 +15,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ModelHorizonHours(int, Enum):
     NOW = 0
+    H6  = 6
+    H12 = 12
     H24 = 24
     H48 = 48
+    H72 = 72
 
 
 class LeadingFactor(BaseModel):

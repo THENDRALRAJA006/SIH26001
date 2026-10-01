@@ -2,10 +2,15 @@
 
 # ── Environment & Secrets ────────────────────────────────────────────
 .env
+*.env
 .env.local
 .env.*.local
 *.pem
 *.key
+.cloudflared/
+*credentials.json
+cert.pem
+*.tunnel-token
 
 # ── Python ────────────────────────────────────────────────────────────
 __pycache__/
@@ -47,19 +52,29 @@ mobile/node_modules/
 .expo-shared/
 
 # ── ML Artifacts ─────────────────────────────────────────────────────
-ml/checkpoints/
+# Allow essential production checkpoints to be tracked for deployment
+!ml/checkpoints/
+!ml/checkpoints/**
+!yolov8n.pt
 /models/
 !ml/models/
 *.pt
 *.pkl
 *.joblib
 *.h5
+# Explicitly whitelist vital production model checkpoints
+!ml/checkpoints/**/*.pt
+!ml/checkpoints/**/*.pkl
+!ml/checkpoints/**/*.json
+runs/
 
 # ── Data ──────────────────────────────────────────────────────────────
 data/raw/
 data/interim/
 data/processed/
 data/uploads/
+data/datasets/
+data/hard_negatives/
 # Keep: data/demo/ and data/.gitkeep files
 
 # ── Results (large files) ─────────────────────────────────────────────

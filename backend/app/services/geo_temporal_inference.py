@@ -742,6 +742,8 @@ class GeoTemporalInferenceService:
         # -- Step 1: Live weather + forecast observations ----------------------
         from ml.ingestion.online_ingestion import OnlineIngestionService
         from gis.real_zones import REAL_ZONE_MAP
+        from app.services.weather_provider import MultiProviderStrategy
+        from app.services.weather_feature_service import WeatherFeatureService
 
         ingestion = OnlineIngestionService.get_instance()
         zone      = REAL_ZONE_MAP.get(zone_id)
@@ -753,37 +755,97 @@ class GeoTemporalInferenceService:
         current_rain_mm = float(rainfall_override or 0.0)
         soil_moisture   = float(soil_moisture_override or 0.35)
         temperature_c   = 22.0
+        weather_source_name = "OPENMETEO_LIVE"
+        forecast_source_name = "OPENMETEO_GFS_SEAMLESS"
+        cross_check_diagnostics = None
+        obs_dt = now
+        fc_issued_dt = now
 
-        live_obs = ingestion.get_live_observation(zone_id)
-        if live_obs is None:
-            loop = asyncio.get_event_loop()
-            try:
-                live_obs, forecasts = await loop.run_in_executor(
-                    None, ingestion.fetch_live_and_forecast_for_zone, zone_id, lat, lon
-                )
-                if live_obs:
-                    ingestion._latest_live_obs[zone_id] = live_obs
-                if forecasts:
-                    ingestion._latest_forecasts[zone_id] = forecasts
-            except Exception as exc:
-                logger.warning(f"Live fetch failed for {zone_id}: {exc}")
-                live_obs = None
+        # Use MultiProviderStrategy (OpenWeather primary if configured, Open-Meteo secondary)
+        multi_strategy = MultiProviderStrategy()
+        weather_obs = None
+        weather_fc = None
+        try:
+            weather_obs, fallback_provider, cross_check_diagnostics = await multi_strategy.get_weather(zone_id, lat, lon)
+            weather_fc, _ = await multi_strategy.get_forecast(zone_id, lat, lon)
+        except Exception as exc:
+            logger.warning(f"Multi-provider fetch failed for {zone_id}: {exc}")
 
-        if live_obs:
+        now = datetime.now(tz=timezone.utc)
+        now_iso = now.isoformat()
+
+        if weather_obs and weather_obs.status == "ONLINE" and weather_obs.quality != "UNAVAILABLE":
+            weather_source_name = weather_obs.source
             if rainfall_override is None:
-                current_rain_mm = float(live_obs.current_precipitation_mm)
-            if soil_moisture_override is None:
-                soil_moisture   = float(live_obs.soil_moisture_m3m3)
-            temperature_c   = float(live_obs.temperature_c)
-            weather_quality = live_obs.quality_flag
-            weather_age_min = float(live_obs.data_age_minutes)
+                current_rain_mm = float(weather_obs.rainfall_1h_mm or (weather_obs.rainfall_3h_mm / 3.0 if weather_obs.rainfall_3h_mm else 0.0))
+            if weather_obs.temperature_c is not None:
+                temperature_c = float(weather_obs.temperature_c)
+            weather_quality = weather_obs.quality
+            weather_age_min = float(weather_obs.data_age_minutes)
+            if weather_obs.observation_time and weather_obs.observation_time != "UNAVAILABLE":
+                try:
+                    obs_dt = datetime.fromisoformat(weather_obs.observation_time.replace("Z", "+00:00"))
+                    WeatherFeatureService.enforce_causality(obs_dt, now)
+                except Exception as c_err:
+                    logger.warning(f"Causality audit on weather observation: {c_err}")
+        else:
+            live_obs = ingestion.get_live_observation(zone_id)
+            if live_obs is None:
+                loop = asyncio.get_event_loop()
+                try:
+                    live_obs, forecasts = await loop.run_in_executor(
+                        None, ingestion.fetch_live_and_forecast_for_zone, zone_id, lat, lon
+                    )
+                    if live_obs:
+                        ingestion._latest_live_obs[zone_id] = live_obs
+                    if forecasts:
+                        ingestion._latest_forecasts[zone_id] = forecasts
+                except Exception as exc:
+                    logger.warning(f"Live fetch failed for {zone_id}: {exc}")
+                    live_obs = None
 
-        forecast_rain_24h = float(ingestion.get_forecast_rainfall_accumulation(zone_id, horizon_hours=24))
-        forecasts_6h = ingestion.get_forecasts(zone_id, horizon_hours=6)
-        forecast_spread = float(
-            np.clip(forecasts_6h[0].forecast_rain_mm * 0.20, 0.1, 30.0)
-            if forecasts_6h else 3.0
-        )
+            if live_obs:
+                if rainfall_override is None:
+                    current_rain_mm = float(live_obs.current_precipitation_mm)
+                temperature_c   = float(live_obs.temperature_c)
+                weather_quality = live_obs.quality_flag
+                weather_age_min = float(live_obs.data_age_minutes)
+                obs_dt = live_obs.timestamp
+
+        # Soil moisture: OpenWeather doesn't supply volumetric soil moisture, so retrieve from hydrology proxy
+        if soil_moisture_override is None:
+            live_soil = ingestion.get_live_observation(zone_id)
+            if live_soil and hasattr(live_soil, "soil_moisture_m3m3"):
+                soil_moisture = float(live_soil.soil_moisture_m3m3)
+            else:
+                soil_moisture = 0.35
+
+        # Forecast accumulation and spread
+        if weather_fc and weather_fc.status == "ONLINE" and weather_fc.quality != "UNAVAILABLE":
+            forecast_source_name = f"{weather_fc.source}_5DAY_3H" if weather_fc.source == "OPENWEATHER" else weather_fc.source
+            if weather_fc.forecast_issued_at and weather_fc.forecast_issued_at != "UNAVAILABLE":
+                try:
+                    fc_issued_dt = datetime.fromisoformat(weather_fc.forecast_issued_at.replace("Z", "+00:00"))
+                    WeatherFeatureService.enforce_causality(obs_dt, now, forecast_issued_at=fc_issued_dt)
+                except Exception as c_err:
+                    logger.warning(f"Causality audit on forecast issuance: {c_err}")
+
+            h24 = weather_fc.horizons.get("24h", {})
+            forecast_rain_24h = float(h24.get("accumulated_rain_mm") or h24.get("forecast_rain_mm") or 0.0)
+            h6 = weather_fc.horizons.get("6h", {})
+            h6_rain = float(h6.get("accumulated_rain_mm") or h6.get("forecast_rain_mm") or 0.0)
+            forecast_spread = float(np.clip(h6_rain * 0.20, 0.1, 30.0))
+        else:
+            forecast_rain_24h = float(ingestion.get_forecast_rainfall_accumulation(zone_id, horizon_hours=24))
+            forecasts_6h = ingestion.get_forecasts(zone_id, horizon_hours=6)
+            forecast_spread = float(
+                np.clip(forecasts_6h[0].forecast_rain_mm * 0.20, 0.1, 30.0)
+                if forecasts_6h else 3.0
+            )
+
+        # Refresh prediction_time to execution timestamp post-data retrieval
+        now = datetime.now(tz=timezone.utc)
+        now_iso = now.isoformat()
 
         # -- Step 2: Assemble all tensors --------------------------------------
         tensors = self._assemble_tensors(
@@ -853,7 +915,6 @@ class GeoTemporalInferenceService:
         s1_scene = _get_latest_sentinel1_scene(zone_id)
 
         # Causality verification across all 5 modalities
-        obs_dt = live_obs.timestamp if live_obs else now
         s1_dt = None
         if s1_scene and "startTime" in s1_scene:
             try:
@@ -882,17 +943,17 @@ class GeoTemporalInferenceService:
         causality_report = _verify_causality(
             prediction_time=now,
             observation_time=obs_dt,
-            forecast_issued_at=obs_dt,
+            forecast_issued_at=fc_issued_dt,
             satellite_acquisition_time=s1_dt,
             seismic_event_time=seismic_dt,
             tectonic_valid_time=tectonic_dt,
         )
 
         prov = DataSourceProvenance(
-            weather_source="OPENMETEO_LIVE" if "nominal" in weather_quality else "OPENMETEO_FALLBACK",
+            weather_source=weather_source_name,
             weather_quality=weather_quality,
-            weather_age_minutes=weather_age_min,
-            forecast_source="OPENMETEO_GFS_SEAMLESS",
+            weather_age_minutes=round(weather_age_min, 1),
+            forecast_source=forecast_source_name,
             forecast_spread_6h=round(forecast_spread, 2),
             insar_available=bool(insar_obs.availability_mask),
             insar_coherence=float(insar_obs.mean_coherence),
@@ -929,36 +990,63 @@ class GeoTemporalInferenceService:
         dist_road = float(np.clip(2.5 - 0.055 * slope, 0.05, 10.0))
         road_prox = float(1.0 / (1.0 + dist_road))
 
+        weather_prov_dict = {
+            "provider": (
+                "OpenWeather REST API (api.openweathermap.org/data/2.5/weather)"
+                if weather_source_name == "OPENWEATHER"
+                else "Open-Meteo REST API (api.open-meteo.com/v1/forecast)"
+            ),
+            "dataset": (
+                "OpenWeather Current Weather Live Observations"
+                if weather_source_name == "OPENWEATHER"
+                else "ECMWF IFS / DWD ICON Seamless Live Observations"
+            ),
+            "request_time": now_iso,
+            "data_timestamp": obs_dt.isoformat(),
+            "latitude": round(lat, 4),
+            "longitude": round(lon, 4),
+            "value": round(current_rain_mm, 2),
+            "unit": "mm/h",
+            "temperature_c": round(temperature_c, 1),
+            "humidity_pct": round(weather_obs.humidity_pct, 1) if (weather_obs and weather_obs.humidity_pct is not None) else 70.0,
+            "pressure_hpa": round(weather_obs.pressure_hpa, 1) if (weather_obs and weather_obs.pressure_hpa is not None) else 1012.0,
+            "wind_speed_ms": round(weather_obs.wind_speed_ms, 1) if (weather_obs and weather_obs.wind_speed_ms is not None) else 0.0,
+            "soil_moisture_m3m3": round(soil_moisture, 3),
+            "soil_moisture_status": "PROVENANCE_SEPARATE_HYDROLOGY_PROXY",
+            "quality": weather_quality,
+            "data_age_minutes": round(weather_age_min, 1),
+            "availability_status": "REAL" if weather_quality in ("GOOD", "nominal") else "CACHED",
+            "is_cached": getattr(weather_obs, "cached", False) if weather_obs else False,
+        }
+
+        forecast_prov_dict = {
+            "provider": (
+                "OpenWeather REST API (api.openweathermap.org/data/2.5/forecast)"
+                if "OPENWEATHER" in forecast_source_name
+                else "Open-Meteo / NOAA GFS Numerical Weather Prediction"
+            ),
+            "dataset": (
+                "OpenWeather 5-Day / 3-Hour Forecast Data (6h-72h Horizons)"
+                if "OPENWEATHER" in forecast_source_name
+                else "Seamless GFS / ECMWF Hourly Precipitation Forecast (0-72h)"
+            ),
+            "request_time": now_iso,
+            "forecast_issued_at": fc_issued_dt.isoformat(),
+            "data_timestamp": obs_dt.isoformat(),
+            "latitude": round(lat, 4),
+            "longitude": round(lon, 4),
+            "value": round(forecast_rain_24h, 2),
+            "unit": "mm (24h accumulated)",
+            "spread_6h": round(forecast_spread, 2),
+            "quality": "nominal" if weather_quality in ("GOOD", "nominal") else "degraded",
+            "data_age_minutes": round(weather_age_min, 1),
+            "availability_status": "REAL",
+            "horizons": weather_fc.horizons if weather_fc else {},
+        }
+
         data_prov = {
-            "weather": {
-                "provider": "Open-Meteo REST API (api.open-meteo.com/v1/forecast)",
-                "dataset": "ECMWF IFS / DWD ICON Seamless Live Observations",
-                "request_time": now_iso,
-                "data_timestamp": obs_dt.isoformat(),
-                "latitude": round(lat, 4),
-                "longitude": round(lon, 4),
-                "value": round(current_rain_mm, 2),
-                "unit": "mm/h",
-                "temperature_c": round(temperature_c, 1),
-                "soil_moisture_m3m3": round(soil_moisture, 3),
-                "quality": weather_quality,
-                "data_age_minutes": round(weather_age_min, 1),
-                "availability_status": "REAL" if "nominal" in weather_quality else "CACHED",
-            },
-            "forecast": {
-                "provider": "Open-Meteo / NOAA GFS Numerical Weather Prediction",
-                "dataset": "Seamless GFS / ECMWF Hourly Precipitation Forecast (0-72h)",
-                "request_time": now_iso,
-                "data_timestamp": obs_dt.isoformat(),
-                "latitude": round(lat, 4),
-                "longitude": round(lon, 4),
-                "value": round(forecast_rain_24h, 2),
-                "unit": "mm (24h accumulated)",
-                "spread_6h": round(forecast_spread, 2),
-                "quality": "nominal",
-                "data_age_minutes": round(weather_age_min, 1),
-                "availability_status": "REAL",
-            },
+            "weather": weather_prov_dict,
+            "forecast": forecast_prov_dict,
             "soil": {
                 "provider": "Open-Meteo (ERA5-Land 0-1cm Hydrology Proxy)",
                 "dataset": "soil_moisture_0_to_1cm",
@@ -1099,6 +1187,9 @@ class GeoTemporalInferenceService:
                 "availability_status": "UNAVAILABLE",
             },
         }
+
+        if cross_check_diagnostics:
+            data_prov["cross_check_diagnostics"] = cross_check_diagnostics
 
         # Model provenance
         is_fallback = "physics-fallback" in model_version

@@ -5,7 +5,11 @@
  * BASE_URL defaults to the FastAPI backend at localhost:8000.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.PUBLIC_API_BASE_URL ||
+  "http://127.0.0.1:8000";
 
 async function apiFetch(path, options = {}) {
   const token = sessionStorage.getItem("lj_officer_token");
@@ -80,6 +84,38 @@ export const submitCitizenReport = (payload) =>
     method: "POST",
     body: JSON.stringify(payload),
   });
+
+// ── Citizen Vision Verification API (Ultralytics YOLOv8 Subsystem) ────────
+export const submitCitizenVisionReport = (payload) =>
+  apiFetch("/api/v1/citizen/reports", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const fetchCitizenVisionReports = (statusFilter = null, corridorId = null, limit = 50) => {
+  const params = new URLSearchParams({ limit });
+  if (statusFilter) params.append("status", statusFilter);
+  if (corridorId) params.append("corridor_id", corridorId);
+  return apiFetch(`/api/v1/citizen/reports?${params.toString()}`);
+};
+
+export const fetchCitizenVisionReportDetail = (reportId) =>
+  apiFetch(`/api/v1/citizen/reports/${reportId}`);
+
+export const executeCitizenOfficerReview = (reportId, action, officerId = "OFFICER-NER-01", notes = "") =>
+  apiFetch(`/api/v1/citizen/reports/${reportId}/action`, {
+    method: "POST",
+    body: JSON.stringify({ action, officer_id: officerId, notes }),
+  });
+
+export const verifyImageProbe = (payload) =>
+  apiFetch("/api/v1/citizen/verify-image", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const fetchCitizenVisionStats = () =>
+  apiFetch("/api/v1/citizen/stats");
 
 export const executeAlertAction = (alertId, action, officerId = "OFFICER-NER-01", notes = "") =>
   apiFetch(`/api/v1/alerts/${alertId}/action`, {
@@ -309,4 +345,14 @@ export const fetchBenchmarkCompute = () =>
 
 export const fetchBenchmarkCompare = (zoneId = "REAL-NER-001") =>
   apiFetch(`/api/v1/benchmark/compare?zone_id=${zoneId}`);
+
+// ── Weather & Meteorological Intelligence (OpenWeather Primary + Open-Meteo Fallback) ──
+export const fetchWeatherProviderHealth = () =>
+  apiFetch("/api/v1/weather/provider-health");
+
+export const fetchOpenWeatherZone = (zoneId = "REAL-NER-001") =>
+  apiFetch(`/api/v1/weather/openweather/${zoneId}`);
+
+export const fetchUnifiedWeather = (zoneId = "REAL-NER-001") =>
+  apiFetch(`/api/v1/weather/${zoneId}`);
 

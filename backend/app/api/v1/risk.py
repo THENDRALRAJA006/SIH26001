@@ -95,12 +95,12 @@ async def get_all_zone_summaries() -> list[ZoneSummary]:
 )
 async def get_zone_risk(
     zone_id: str,
-    horizon_hours: Annotated[int, Query(description="Prediction horizon (0, 24, or 48)")] = 0,
+    horizon_hours: Annotated[int, Query(description="Prediction horizon (0, 6, 12, 24, 48, or 72)")] = 0,
 ) -> ZoneRiskResponse:
-    if horizon_hours not in (0, 24, 48):
+    if horizon_hours not in (0, 6, 12, 24, 48, 72):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="horizon_hours must be 0, 24, or 48",
+            detail="horizon_hours must be 0, 6, 12, 24, 48, or 72",
         )
 
     pipeline = get_risk_pipeline()
@@ -258,6 +258,8 @@ async def get_live_risk(
         "temperature_c": obs.temperature_c,
         "soil_moisture_m3m3": obs.soil_moisture_m3m3,
         "risk_score": risk_score,
+        "risk_probability": risk_score,
+        "probability": risk_score,
         "risk_level": level,
         "confidence": 0.88,
         "emergency_priority": priority.priority_level,
@@ -297,6 +299,8 @@ async def get_multi_horizon_risk(
             "forecast_valid_time": (now_utc + pd.Timedelta(hours=h)).isoformat(),
             "accumulated_rain_mm": round(qpf, 1),
             "risk_score": h_prob,
+            "risk_probability": h_prob,
+            "probability": h_prob,
             "risk_level": lvl,
             "confidence": round(max(0.92 - h * 0.003, 0.70), 2),
         })

@@ -281,7 +281,7 @@ async def test_provenance_fields_non_null():
     assert isinstance(pred.data_sources.insar_coherence, float)
     assert 0.0 <= pred.data_sources.insar_coherence <= 1.0
     assert pred.data_sources.seismic_pga_status in ("AVAILABLE", "UNAVAILABLE")
-    assert pred.data_sources.weather_source in ("OPENMETEO_LIVE", "OPENMETEO_FALLBACK")
+    assert pred.data_sources.weather_source in ("OPENWEATHER", "OPENMETEO_LIVE", "OPENMETEO_FALLBACK")
 
 
 # ---------------------------------------------------------------------------

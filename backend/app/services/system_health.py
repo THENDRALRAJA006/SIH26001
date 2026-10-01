@@ -501,14 +501,14 @@ class SystemHealthService:
 
     def check_terrain(self) -> Dict[str, Any]:
         t0 = time.perf_counter()
-        dem_dir = PROJECT_ROOT / "data" / "real" / "copernicus_dem"
+        dem_dir = PROJECT_ROOT / "data" / "real" / "raw" / "terrain"
         has_dem = dem_dir.exists() and any(dem_dir.glob("*.tif"))
         latency = round((time.perf_counter() - t0) * 1000, 2)
 
         return {
             "component": "Terrain",
             "category": "Spatial Infrastructure",
-            "status": "ONLINE" if has_dem else "ONLINE",
+            "status": "ONLINE" if has_dem else "DEGRADED",
             "latency_ms": latency,
             "version": "Copernicus GLO-30m DEM",
             "data_age": "Static Baseline",
